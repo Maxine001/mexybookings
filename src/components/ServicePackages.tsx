@@ -197,23 +197,7 @@ const ServicePackages = ({ onBookNow }) => {
           ))}
         </div>
 
-        {/* Custom Package CTA */}
-        <div className="mt-16 text-center">
-          <Card className="border-2 border-dashed border-slate-300 hover:border-amber-500 transition-colors duration-300">
-            <CardContent className="py-12">
-              <div className="text-2xl mb-4">🎨</div>
-              <h3 className="text-xl font-semibold text-slate-800 mb-2">
-                Need Something Custom?
-              </h3>
-              <p className="text-slate-600 mb-6 max-w-md mx-auto">
-                Let's create a personalized package that perfectly fits your vision and budget.
-              </p>
-              <Button variant="outline" size="lg" className="font-semibold">
-                Get Custom Quote
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+      
       </div>
     </section>
   );
