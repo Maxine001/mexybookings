@@ -510,7 +510,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                   <Input
                     value={formData.clientName}
                     onChange={(e) => handleInputChange('clientName', e.target.value)}
-                    placeholder="Enter TikTok/Instagram username"
+                    placeholder="TikTok/Instagram username"
                     className="h-12"
                   />
                 </div>
