@@ -534,7 +534,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
             {/* Step 3: Upload & Notes */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-slate-800 mb-4">upload a picture your cloth</h3>
+                <h3 className="text-xl font-semibold text-slate-800 mb-4">upload a picture your outfit</h3>
                 
                 <div>
                   <Label className="text-base font-medium text-slate-700 mb-2 block">
