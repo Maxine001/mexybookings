@@ -332,8 +332,8 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
   }
 
   return (
-    <section className="py-8 px-4 min-h-screen">
-      <div className="max-w-4xl mx-auto">
+    <section className="py-8 px-4 min-h-screen overflow-x-hidden">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8">
         {/* Header */}
         <div className="mb-8">
           <Button 
@@ -510,7 +510,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                   <Input
                     value={formData.clientName}
                     onChange={(e) => handleInputChange('clientName', e.target.value)}
-                    placeholder="Enter your full name"
+                    placeholder="Enter your TikTok/Instagram username"
                     className="h-12"
                   />
                 </div>
