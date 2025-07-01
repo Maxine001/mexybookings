@@ -26,14 +26,17 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
     return isAnnual ? pkg.annualPrice : pkg.monthlyPrice;
   };
 
-  const getPriceLabel = (pkg: PhotoPackage) => {
-    if (isAnnual) {
-      return `$${pkg.annualPrice} / year`;
+  const formatPrice = (price: number | string) => {
+    if (typeof price === 'number') {
+      return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(price);
     }
-    return `$${pkg.monthlyPrice} / ${pkg.duration}`;
+    return price;
   };
 
   const getSavings = (pkg: PhotoPackage) => {
+    if (typeof pkg.monthlyPrice !== 'number' || typeof pkg.annualPrice !== 'number') {
+      return 0;
+    }
     const monthlyCost = pkg.monthlyPrice * 12;
     const annualCost = pkg.annualPrice;
     const savings = monthlyCost - annualCost;
@@ -105,16 +108,10 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
                 <CardTitle className="text-xl text-slate-800">{pkg.name}</CardTitle>
                 <CardDescription className="text-slate-600">{pkg.description}</CardDescription>
                 <div className="flex items-baseline mt-4">
-                  <span className="text-3xl font-bold text-slate-800">${getPrice(pkg)}</span>
-                  <span className="text-slate-500 ml-2">
-                    {isAnnual ? '/ year' : `/ ${pkg.duration}`}
-                  </span>
+                  <span className="text-3xl font-bold text-slate-800">{formatPrice(getPrice(pkg))}</span>
+                  
                 </div>
-                {isAnnual && (
-                  <div className="text-sm text-slate-500 mt-1">
-                    <span className="line-through">${pkg.monthlyPrice * 12}/year</span>
-                  </div>
-                )}
+                
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
@@ -135,12 +132,7 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
             <div className="bg-white border border-amber-200 rounded-lg p-6 max-w-md mx-auto mb-6">
               <h3 className="text-lg font-semibold text-slate-800 mb-2">Selected Package</h3>
               <p className="text-amber-600 font-medium">{selectedPackage.name}</p>
-              <p className="text-2xl font-bold text-slate-800">{getPriceLabel(selectedPackage)}</p>
-              {isAnnual && (
-                <p className="text-sm text-green-600 mt-1">
-                  You save {getSavings(selectedPackage)}% compared to monthly billing
-                </p>
-              )}
+            
             </div>
             <Button 
               onClick={handleContinue}
