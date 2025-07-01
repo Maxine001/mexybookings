@@ -10,9 +10,11 @@ import { photoPackages, PhotoPackage } from '@/data/packages';
 interface PackageSelectionProps {
   onBack: () => void;
   onSelectPackage: (pkg: PhotoPackage, isAnnual: boolean) => void;
+  couplesToggle: { [key: string]: boolean };
+  setCouplesToggle: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>;
 }
 
-const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) => {
+const PackageSelection = ({ onBack, onSelectPackage, couplesToggle, setCouplesToggle }: PackageSelectionProps) => {
   const [selectedPackage, setSelectedPackage] = useState<PhotoPackage | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
 
@@ -23,7 +25,11 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
   };
 
   const getPrice = (pkg: PhotoPackage) => {
-    return isAnnual ? pkg.annualPrice : pkg.monthlyPrice;
+    let basePrice = isAnnual ? pkg.annualPrice : pkg.monthlyPrice;
+    if (typeof basePrice === 'number' && couplesToggle[pkg.id]) {
+      basePrice += 10000;
+    }
+    return basePrice;
   };
 
   const formatPrice = (price: number | string) => {
@@ -83,44 +89,71 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {photoPackages.map((pkg) => (
-            <Card 
-              key={pkg.id} 
-              className={`border-2 cursor-pointer transition-all duration-300 hover:shadow-lg ${
-                selectedPackage?.id === pkg.id 
-                  ? 'border-amber-500 bg-amber-50' 
-                  : 'border-slate-200 hover:border-amber-300'
-              } ${pkg.popular ? 'ring-2 ring-amber-500 ring-opacity-50' : ''}`}
-              onClick={() => setSelectedPackage(pkg)}
-            >
-              <CardHeader className="relative">
-                {pkg.popular && (
-                  <Badge className="absolute -top-2 left-4 bg-amber-500 hover:bg-amber-600">
-                    <Star className="w-3 h-3 mr-1" />
-                    Most Popular
-                  </Badge>
-                )}
-               
-                <CardTitle className="text-xl text-slate-800">{pkg.name}</CardTitle>
-                <CardDescription className="text-slate-600">{pkg.description}</CardDescription>
-                <div className="flex items-baseline mt-4">
-                  <span className="text-3xl font-bold text-slate-800">{formatPrice(getPrice(pkg))}</span>
+          {photoPackages.map((pkg) => {
+            // Determine features based on couples toggle for lifestyle packages
+            let features = pkg.features;
+            if ((pkg.id === 'basic' || pkg.id === 'standard') && couplesToggle[pkg.id]) {
+              features = [
+                '45 minutes photo session',
+                '5 edited high-resolution photos',
+                'Couples',
+                '2 outfit changes',
+                'Professional retouching',
+                'Custom photo book option',
+              ];
+            }
+
+            return (
+              <Card 
+                key={pkg.id} 
+                className={`border-2 cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                  selectedPackage?.id === pkg.id 
+                    ? 'border-amber-500 bg-amber-50' 
+                    : 'border-slate-200 hover:border-amber-300'
+                } ${pkg.popular ? 'ring-2 ring-amber-500 ring-opacity-50' : ''}`}
+                onClick={() => setSelectedPackage(pkg)}
+              >
+                <CardHeader className="relative">
+                  {pkg.popular && (
+                    <Badge className="absolute -top-2 left-4 bg-amber-500 hover:bg-amber-600">
+                      <Star className="w-3 h-3 mr-1" />
+                      Most Popular
+                    </Badge>
+                  )}
+                 
+                  <CardTitle className="text-xl text-slate-800">{pkg.name}</CardTitle>
+                  <CardDescription className="text-slate-600">{pkg.description}</CardDescription>
+                  <div className="flex items-baseline mt-4">
+                    <span className="text-3xl font-bold text-slate-800">{formatPrice(getPrice(pkg))}</span>
+                    
+                  </div>
                   
-                </div>
-                
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {pkg.features.map((feature, index) => (
-                    <li key={index} className="flex items-start">
-                      <Check className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-slate-600">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    {features.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <Check className="w-4 h-4 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm text-slate-600">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {/* Add toggle for individual/couples for lifestyle packages */}
+                  {((pkg.id === 'basic' && !isAnnual) || pkg.id === 'standard') && (
+                    <div className="mt-4 flex items-center justify-center space-x-4">
+                      <span className="text-sm font-medium">Individual</span>
+                      <Switch
+                        checked={couplesToggle[pkg.id]}
+                        onCheckedChange={(checked) => setCouplesToggle(prev => ({ ...prev, [pkg.id]: checked }))}
+                        className="data-[state=checked]:bg-amber-500"
+                      />
+                      <span className="text-sm font-medium">Couples</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {selectedPackage && (

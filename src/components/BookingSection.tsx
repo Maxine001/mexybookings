@@ -16,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
+const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesToggle }: { selectedPackage: any; onBack: any; isAnnual?: boolean; couplesToggle: { [key: string]: boolean } }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -40,10 +40,14 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
   // Evening time slots that trigger annual upgrade (6:00 PM - 10:00 PM)
   const eveningTimeSlots = ['6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
 
-  // Get the correct price based on billing type
+  // Get the correct price based on billing type and couples toggle
   const getPackagePrice = () => {
     if (!selectedPackage) return 0;
-    return isAnnualUpgraded ? selectedPackage.annualPrice : selectedPackage.monthlyPrice;
+    let basePrice = isAnnualUpgraded ? selectedPackage.annualPrice : selectedPackage.monthlyPrice;
+    if (typeof basePrice === 'number' && couplesToggle[selectedPackage.id]) {
+      basePrice += 10000;
+    }
+    return basePrice;
   };
 
   const steps = [
@@ -415,15 +419,20 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                     <Card className="bg-amber-50 border-amber-200 mb-6">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
-                          <div>
-                            <h4 className="font-semibold text-slate-800">{selectedPackage.name}</h4>
-                            <p className="text-sm text-slate-600">{selectedPackage.description}</p>
-                            {isAnnualUpgraded && !isAnnual && (
-                              <p className="text-xs text-amber-700 mt-1 font-medium">
-                                ✨ Upgraded to Night Session for evening time slot
-                              </p>
-                            )}
-                          </div>
+                  <div>
+                    <h4 className="font-semibold text-slate-800">{selectedPackage.name}</h4>
+                    <p className="text-sm text-slate-600">{selectedPackage.description}</p>
+                    {couplesToggle[selectedPackage.id] ? (
+                      <p className="text-sm text-slate-700 font-medium mt-1">Couples Session</p>
+                    ) : (
+                      <p className="text-sm text-slate-700 font-medium mt-1">Individual Session</p>
+                    )}
+                    {isAnnualUpgraded && !isAnnual && (
+                      <p className="text-xs text-amber-700 mt-1 font-medium">
+                        ✨ Upgraded to Night Session for evening time slot
+                      </p>
+                    )}
+                  </div>
                           <div className="text-right">
                             <div className="text-xl font-bold text-slate-800">₦{getPackagePrice().toLocaleString()}</div>
                             <div className="text-sm text-slate-500">{selectedPackage.duration}</div>

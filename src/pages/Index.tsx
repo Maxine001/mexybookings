@@ -18,6 +18,10 @@ const Index = () => {
   const [currentView, setCurrentView] = useState<'home' | 'packages' | 'booking' | 'admin'>('home');
   const [selectedPackage, setSelectedPackage] = useState<PhotoPackage | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
+  const [couplesToggle, setCouplesToggle] = useState<{ [key: string]: boolean }>({
+    basic: false,
+    standard: false,
+  });
   const { isAdmin } = useUserRole();
 
   const handleBookNow = (packageData?: PhotoPackage) => {
@@ -39,6 +43,10 @@ const Index = () => {
     setCurrentView('home');
     setSelectedPackage(null);
     setIsAnnual(false);
+    setCouplesToggle({
+      basic: false,
+      standard: false,
+    });
   };
 
   return (
@@ -171,6 +179,8 @@ const Index = () => {
         <PackageSelection 
           onBack={handleBackToHome}
           onSelectPackage={handleSelectPackage}
+          couplesToggle={couplesToggle}
+          setCouplesToggle={setCouplesToggle}
         />
       )}
 
@@ -179,6 +189,7 @@ const Index = () => {
           selectedPackage={selectedPackage}
           isAnnual={isAnnual}
           onBack={handleBackToHome}
+          couplesToggle={couplesToggle}
         />
       )}
 
