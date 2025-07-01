@@ -534,11 +534,13 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
             {/* Step 3: Upload & Notes */}
             {currentStep === 3 && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-slate-800 mb-4">Inspiration & Notes</h3>
+                <h3 className="text-xl font-semibold text-slate-800 mb-4">upload a picture your cloth</h3>
                 
                 <div>
                   <Label className="text-base font-medium text-slate-700 mb-2 block">
                     Upload Reference Photos (Optional)
+                   <br />
+                   <span className="text-green-700">note: your location will be based on the uploaded photos</span>
                   </Label>
                   <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center hover:border-amber-500 transition-colors">
                     <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
