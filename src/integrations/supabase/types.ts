@@ -87,6 +87,108 @@ export type Database = {
         }
         Relationships: []
       }
+      transfer_recipients: {
+        Row: {
+          account_name: string | null
+          account_number: string
+          bank_code: string
+          bank_name: string
+          created_at: string | null
+          email: string
+          id: string
+          is_active: boolean | null
+          name: string
+          recipient_code: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_name?: string | null
+          account_number: string
+          bank_code: string
+          bank_name: string
+          created_at?: string | null
+          email: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          recipient_code: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string
+          bank_code?: string
+          bank_name?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          recipient_code?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      transfers: {
+        Row: {
+          account_number: string
+          amount: number
+          bank_code: string
+          bank_name: string
+          completed_at: string | null
+          created_at: string | null
+          currency: string | null
+          failure_reason: string | null
+          id: string
+          initiated_by: string | null
+          paystack_recipient_code: string | null
+          recipient_email: string
+          recipient_name: string
+          reference: string
+          status: string | null
+          transfer_code: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_number: string
+          amount: number
+          bank_code: string
+          bank_name: string
+          completed_at?: string | null
+          created_at?: string | null
+          currency?: string | null
+          failure_reason?: string | null
+          id?: string
+          initiated_by?: string | null
+          paystack_recipient_code?: string | null
+          recipient_email: string
+          recipient_name: string
+          reference: string
+          status?: string | null
+          transfer_code?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_number?: string
+          amount?: number
+          bank_code?: string
+          bank_name?: string
+          completed_at?: string | null
+          created_at?: string | null
+          currency?: string | null
+          failure_reason?: string | null
+          id?: string
+          initiated_by?: string | null
+          paystack_recipient_code?: string | null
+          recipient_email?: string
+          recipient_name?: string
+          reference?: string
+          status?: string | null
+          transfer_code?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -118,6 +220,10 @@ export type Database = {
           _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
         }
+        Returns: boolean
+      }
+      is_admin_user: {
+        Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }

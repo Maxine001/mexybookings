@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,18 +7,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowLeft, Calendar as CalendarIcon, Upload, Clock, CreditCard, Check, X } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, Upload, Clock, CreditCard, Check, X, Info } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-const BookingSection = ({ selectedPackage, onBack }) => {
+const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isAnnualUpgraded, setIsAnnualUpgraded] = useState(isAnnual);
+  const [showUpgradeNotification, setShowUpgradeNotification] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -35,6 +37,15 @@ const BookingSection = ({ selectedPackage, onBack }) => {
     uploadedFileUrls: []
   });
 
+  // Evening time slots that trigger annual upgrade (6:00 PM - 10:00 PM)
+  const eveningTimeSlots = ['6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'];
+
+  // Get the correct price based on billing type
+  const getPackagePrice = () => {
+    if (!selectedPackage) return 0;
+    return isAnnualUpgraded ? selectedPackage.annualPrice : selectedPackage.monthlyPrice;
+  };
+
   const steps = [
     { id: 1, title: 'Package & Date', desc: 'Select your session details' },
     { id: 2, title: 'Personal Info', desc: 'Tell us about yourself' },
@@ -44,10 +55,9 @@ const BookingSection = ({ selectedPackage, onBack }) => {
 
   const timeSlots = [
     '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
-    '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'
+    '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM',
+    '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'
   ];
-
-  
 
   // Fetch user profile data to auto-populate email
   useEffect(() => {
@@ -82,6 +92,28 @@ const BookingSection = ({ selectedPackage, onBack }) => {
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handle time selection with automatic annual upgrade for evening slots
+  const handleTimeSelection = (selectedTime) => {
+    handleInputChange('time', selectedTime);
+    
+    // Check if selected time is in evening slots and user wasn't already on annual
+    if (eveningTimeSlots.includes(selectedTime) && !isAnnualUpgraded) {
+      setIsAnnualUpgraded(true);
+      setShowUpgradeNotification(true);
+      
+      toast({
+        title: "Package Upgraded",
+        description: "You've selected a time that falls within the Annual Session (6PM–10PM). The session type and price have been updated.",
+        duration: 5000,
+      });
+      
+      // Hide notification after 8 seconds
+      setTimeout(() => {
+        setShowUpgradeNotification(false);
+      }, 8000);
+    }
   };
 
   const handleFileUpload = async (event) => {
@@ -199,11 +231,12 @@ const BookingSection = ({ selectedPackage, onBack }) => {
     setIsSubmitting(true);
 
     try {
+      const packagePrice = getPackagePrice();
       const bookingData = {
         user_id: user.id,
         package_id: selectedPackage?.id || 'unknown',
         package_name: selectedPackage?.name || 'Unknown Package',
-        package_price: selectedPackage?.price || 0,
+        package_price: packagePrice,
         booking_date: format(formData.date, 'yyyy-MM-dd'),
         booking_time: formData.time,
         client_name: formData.clientName,
@@ -299,11 +332,28 @@ const BookingSection = ({ selectedPackage, onBack }) => {
             <h1 className="text-3xl font-bold text-slate-800 mb-2">Book Your Session</h1>
             {selectedPackage && (
               <p className="text-lg text-slate-600">
-                {selectedPackage.name} - ${selectedPackage.price}
+                {selectedPackage.name} - ${getPackagePrice()}
+                {isAnnualUpgraded && !isAnnual && (
+                  <span className="ml-2 text-sm bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
+                    Upgraded to Annual
+                  </span>
+                )}
               </p>
             )}
           </div>
         </div>
+
+        {/* Upgrade Notification */}
+        {showUpgradeNotification && (
+          <div className="mb-6">
+            <Alert className="border-amber-200 bg-amber-50">
+              <Info className="h-4 w-4 text-amber-600" />
+              <AlertDescription className="text-amber-800">
+                You've selected a time that falls within the Annual Session (6PM–10PM). The session type and price have been updated to reflect premium evening rates.
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
 
         {/* Progress Indicator */}
         <div className="mb-8">
@@ -351,10 +401,18 @@ const BookingSection = ({ selectedPackage, onBack }) => {
                           <div>
                             <h4 className="font-semibold text-slate-800">{selectedPackage.name}</h4>
                             <p className="text-sm text-slate-600">{selectedPackage.description}</p>
+                            {isAnnualUpgraded && !isAnnual && (
+                              <p className="text-xs text-amber-700 mt-1 font-medium">
+                                ✨ Upgraded to Annual Plan for evening time slot
+                              </p>
+                            )}
                           </div>
                           <div className="text-right">
-                            <div className="text-xl font-bold text-slate-800">${selectedPackage.price}</div>
+                            <div className="text-xl font-bold text-slate-800">${getPackagePrice()}</div>
                             <div className="text-sm text-slate-500">{selectedPackage.duration}</div>
+                            {isAnnualUpgraded && !isAnnual && (
+                              <div className="text-xs text-amber-600">Annual Rate</div>
+                            )}
                           </div>
                         </div>
                       </CardContent>
@@ -397,7 +455,7 @@ const BookingSection = ({ selectedPackage, onBack }) => {
                     <Label className="text-base font-medium text-slate-700 mb-2 block">
                       Preferred Time *
                     </Label>
-                    <Select value={formData.time} onValueChange={(value) => handleInputChange('time', value)}>
+                    <Select value={formData.time} onValueChange={handleTimeSelection}>
                       <SelectTrigger className="h-12">
                         <SelectValue placeholder="Select time slot" />
                       </SelectTrigger>
@@ -407,11 +465,21 @@ const BookingSection = ({ selectedPackage, onBack }) => {
                             <div className="flex items-center">
                               <Clock className="w-4 h-4 mr-2" />
                               {time}
+                              {eveningTimeSlots.includes(time) && (
+                                <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
+                                  Premium
+                                </span>
+                              )}
                             </div>
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    {eveningTimeSlots.some(slot => timeSlots.includes(slot)) && (
+                      <p className="text-xs text-slate-500 mt-2">
+                        * Evening slots (6PM-10PM) automatically upgrade to Annual pricing
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -536,7 +604,14 @@ const BookingSection = ({ selectedPackage, onBack }) => {
                     <div className="space-y-3">
                       <div className="flex justify-between">
                         <span>Package:</span>
-                        <span className="font-medium">{selectedPackage?.name}</span>
+                        <span className="font-medium">
+                          {selectedPackage?.name}
+                          {isAnnualUpgraded && !isAnnual && (
+                            <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">
+                              Annual
+                            </span>
+                          )}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Date:</span>
@@ -546,7 +621,14 @@ const BookingSection = ({ selectedPackage, onBack }) => {
                       </div>
                       <div className="flex justify-between">
                         <span>Time:</span>
-                        <span className="font-medium">{formData.time || 'Not selected'}</span>
+                        <span className="font-medium">
+                          {formData.time || 'Not selected'}
+                          {formData.time && eveningTimeSlots.includes(formData.time) && (
+                            <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">
+                              Premium
+                            </span>
+                          )}
+                        </span>
                       </div>
                       {formData.uploadedFiles.length > 0 && (
                         <div className="flex justify-between">
@@ -557,8 +639,14 @@ const BookingSection = ({ selectedPackage, onBack }) => {
                       <hr className="my-4" />
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total:</span>
-                        <span>${selectedPackage.price}</span>
+                        <span>${getPackagePrice()}</span>
                       </div>
+                      {isAnnualUpgraded && !isAnnual && (
+                        <div className="text-sm text-amber-700 bg-amber-50 p-3 rounded-lg">
+                          <p className="font-medium">Evening Session Upgrade Applied</p>
+                          <p className="text-xs">Annual pricing applied for premium evening time slot (6PM-10PM)</p>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

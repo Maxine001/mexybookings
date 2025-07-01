@@ -1,13 +1,16 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';      
+import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Camera, Menu, User, Calendar, LogOut } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
+interface NavigationProps {
+  onBookNow?: () => void;
+}
 
-const Navigation = () => {
+const Navigation = ({ onBookNow }: NavigationProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
@@ -31,8 +34,10 @@ const Navigation = () => {
     if (!user) {
       navigate('/auth');
     } else {
-      // TODO: Navigate to booking page
-      navigate('/packageSelection'); // Adjust this path as needed
+      // Use the onBookNow prop if provided, otherwise do nothing
+      if (onBookNow) {
+        onBookNow();
+      }
     }
   };
 

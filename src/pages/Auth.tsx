@@ -44,7 +44,7 @@ const Auth = () => {
             title: 'Welcome back!',
             description: 'You have successfully logged in.',
           });
-          navigate('/'); // Redirect to booking section
+          navigate('/');
         }
       } else {
         if (!fullName.trim()) {

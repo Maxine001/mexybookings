@@ -1,9 +1,10 @@
+
 export interface PhotoPackage {
   id: string;
   name: string;
   description: string;
-  dayPrice: number;
-  nightPrice: number;
+  monthlyPrice: number;
+  annualPrice: number;
   duration: string;
   features: string[];
   popular?: boolean;
@@ -12,41 +13,40 @@ export interface PhotoPackage {
 export const photoPackages: PhotoPackage[] = [
   {
     id: 'basic',
-    name: 'LIFESTYLE SESSION - MOBILE',
+    name: 'Basic Portrait',
     description: 'Perfect for individual headshots and simple portraits',
-    dayPrice: 30000,
-    nightPrice: 5, // 10 months price (2 months free)
+    monthlyPrice: 299,
+    annualPrice: 2988, // 10 months price (2 months free)
     duration: '1 hour',
     features: [
-       '1 hour photo session',
-      '5 edited high-resolution photos',
+      '1 hour photo session',
+      '20 edited high-resolution photos',
       'Online gallery access',
-      '1 outfit ',
-      'Personal and social media usage rights'
+      'Personal usage rights'
     ]
   },
   {
     id: 'standard',
-    name: 'LIFESTYLE SESSION - CAMERA',
-    description: 'Great for individuals, night life photos',
-    dayPrice: 70000,
-    nightPrice: 85000, // 10 months price (2 months free)
-    duration: '1 hours',
+    name: 'Standard Session',
+    description: 'Great for couples, families, or small groups',
+    monthlyPrice: 499,
+    annualPrice: 4990, // 10 months price (2 months free)
+    duration: '2 hours',
     features: [
-      '1 hour photo session',
-      '5 edited high-resolution photos',
+      '2 hour photo session',
+      '50 edited high-resolution photos',
       'Online gallery access',
-      '1 outfit ',
+      '2 outfit changes',
       'Personal and social media usage rights'
     ],
     popular: true
   },
   {
     id: 'premium',
-    name: 'EVENT SESSION (CAMERA ONLY)',
+    name: 'Premium Experience',
     description: 'Comprehensive session with multiple locations',
-    dayPrice: 799,
-    nightPrice: 7990, // 10 months price (2 months free)
+    monthlyPrice: 799,
+    annualPrice: 7990, // 10 months price (2 months free)
     duration: '3 hours',
     features: [
       '3 hour photo session',
@@ -58,5 +58,37 @@ export const photoPackages: PhotoPackage[] = [
       'Commercial usage rights'
     ]
   },
-  
+  {
+    id: 'wedding',
+    name: 'Wedding Package',
+    description: 'Full wedding day coverage',
+    monthlyPrice: 2499,
+    annualPrice: 24990, // 10 months price (2 months free)
+    duration: '8 hours',
+    features: [
+      'Full day wedding coverage',
+      '500+ edited high-resolution photos',
+      'Online gallery access',
+      'Engagement session included',
+      'Two photographers',
+      'USB drive with all photos',
+      'Print release included'
+    ]
+  },
+  {
+    id: 'event',
+    name: 'Event Photography',
+    description: 'Corporate events, parties, and special occasions',
+    monthlyPrice: 899,
+    annualPrice: 8990, // 10 months price (2 months free)
+    duration: '4 hours',
+    features: [
+      '4 hour event coverage',
+      '200+ edited photos',
+      'Online gallery access',
+      'Quick turnaround (48 hours)',
+      'Commercial usage rights',
+      'Group photos included'
+    ]
+  }
 ];

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -5,32 +6,38 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Check, Star } from 'lucide-react';
 import { photoPackages, PhotoPackage } from '@/data/packages';
-import BookingSection from './BookingSection';
 
 interface PackageSelectionProps {
   onBack: () => void;
-  onSelectPackage: (pkg: PhotoPackage) => void;
+  onSelectPackage: (pkg: PhotoPackage, isAnnual: boolean) => void;
 }
 
 const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) => {
   const [selectedPackage, setSelectedPackage] = useState<PhotoPackage | null>(null);
-  const [isNight, setIsNight] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(false);
 
   const handleContinue = () => {
     if (selectedPackage) {
-      onSelectPackage(selectedPackage);
+      onSelectPackage(selectedPackage, isAnnual);
     }
   };
 
   const getPrice = (pkg: PhotoPackage) => {
-    return isNight ? pkg.nightPrice : pkg.dayPrice;
+    return isAnnual ? pkg.annualPrice : pkg.monthlyPrice;
   };
 
   const getPriceLabel = (pkg: PhotoPackage) => {
-    if (isNight) {
-      return `$${pkg.nightPrice} / year`;
+    if (isAnnual) {
+      return `$${pkg.annualPrice} / year`;
     }
-    return `$${pkg.dayPrice} / ${pkg.duration}`;
+    return `$${pkg.monthlyPrice} / ${pkg.duration}`;
+  };
+
+  const getSavings = (pkg: PhotoPackage) => {
+    const monthlyCost = pkg.monthlyPrice * 12;
+    const annualCost = pkg.annualPrice;
+    const savings = monthlyCost - annualCost;
+    return Math.round((savings / monthlyCost) * 100);
   };
 
   return (
@@ -54,19 +61,19 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
             
             {/* Pricing Toggle */}
             <div className="flex items-center justify-center gap-4 mb-2">
-              <span className={`text-sm font-medium ${!isNight ? 'text-slate-800' : 'text-slate-500'}`}>
-                Day Session
+              <span className={`text-sm font-medium ${!isAnnual ? 'text-slate-800' : 'text-slate-500'}`}>
+                Per Session
               </span>
               <Switch
-                checked={isNight}
-                onCheckedChange={setIsNight}
+                checked={isAnnual}
+                onCheckedChange={setIsAnnual}
                 className="data-[state=checked]:bg-amber-500"
               />
-              <span className={`text-sm font-medium ${isNight ? 'text-slate-800' : 'text-slate-500'}`}>
-               Night Session
+              <span className={`text-sm font-medium ${isAnnual ? 'text-slate-800' : 'text-slate-500'}`}>
+                Annual Plan
               </span>
             </div>
-            {isNight && (
+            {isAnnual && (
               <p className="text-sm text-green-600 font-medium">Save up to 17% with annual billing</p>
             )}
           </div>
@@ -90,16 +97,24 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
                     Most Popular
                   </Badge>
                 )}
-                
+                {isAnnual && (
+                  <Badge className="absolute -top-2 right-4 bg-green-500 hover:bg-green-600">
+                    Save {getSavings(pkg)}%
+                  </Badge>
+                )}
                 <CardTitle className="text-xl text-slate-800">{pkg.name}</CardTitle>
                 <CardDescription className="text-slate-600">{pkg.description}</CardDescription>
                 <div className="flex items-baseline mt-4">
                   <span className="text-3xl font-bold text-slate-800">${getPrice(pkg)}</span>
                   <span className="text-slate-500 ml-2">
-                    {isNight ? '/ year' : `/ ${pkg.duration}`}
+                    {isAnnual ? '/ year' : `/ ${pkg.duration}`}
                   </span>
                 </div>
-                
+                {isAnnual && (
+                  <div className="text-sm text-slate-500 mt-1">
+                    <span className="line-through">${pkg.monthlyPrice * 12}/year</span>
+                  </div>
+                )}
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
@@ -121,6 +136,11 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
               <h3 className="text-lg font-semibold text-slate-800 mb-2">Selected Package</h3>
               <p className="text-amber-600 font-medium">{selectedPackage.name}</p>
               <p className="text-2xl font-bold text-slate-800">{getPriceLabel(selectedPackage)}</p>
+              {isAnnual && (
+                <p className="text-sm text-green-600 mt-1">
+                  You save {getSavings(selectedPackage)}% compared to monthly billing
+                </p>
+              )}
             </div>
             <Button 
               onClick={handleContinue}

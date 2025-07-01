@@ -1,14 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Eye, Mail, Calendar, MapPin, Phone, User, DollarSign } from 'lucide-react';
+import { ArrowLeft, Eye, Mail, Calendar, MapPin, Phone, User, DollarSign, CreditCard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import type { Json } from '@/integrations/supabase/types';
+import TransferPanel from './TransferPanel';
 
 interface Booking {
   id: string;
@@ -29,6 +31,7 @@ interface AdminPanelProps {
 }
 
 const AdminPanel = ({ onBack }: AdminPanelProps) => {
+  const [view, setView] = useState<'main' | 'bookings' | 'transfers'>('main');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
@@ -140,6 +143,10 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
       </div>
     );
   };
+
+  if (view === 'transfers') {
+    return <TransferPanel onBack={() => setView('main')} />;
+  }
 
   if (selectedBooking) {
     return (
@@ -262,6 +269,106 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
     );
   }
 
+  if (view === 'bookings') {
+    return (
+      <section className="py-8 px-4 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Button 
+              variant="ghost" 
+              onClick={() => setView('main')}
+              className="mb-4 hover:bg-slate-100"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Admin Panel
+            </Button>
+            
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Booking Management</h1>
+            <p className="text-lg text-slate-600">Manage bookings and client information</p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>All Bookings</CardTitle>
+              <CardDescription>
+                {bookings.length} total booking{bookings.length !== 1 ? 's' : ''}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="text-center py-8">Loading bookings...</div>
+              ) : bookings.length === 0 ? (
+                <div className="text-center py-8 text-slate-500">No bookings found</div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Client</TableHead>
+                      <TableHead>Package</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {bookings.map((booking) => (
+                      <TableRow key={booking.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{booking.client_name}</div>
+                            <div className="text-sm text-slate-500">{booking.client_email}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{booking.package_name}</div>
+                            <div className="text-sm text-slate-500">${booking.package_price}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</div>
+                            <div className="text-sm text-slate-500">{booking.booking_time}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={getStatusColor(booking.status)}>
+                            {booking.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedBooking(booking)}
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              View
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={() => sendConfirmationEmail(booking)}
+                              disabled={sendingEmail === booking.id}
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                            >
+                              <Mail className="w-4 h-4 mr-1" />
+                              {sendingEmail === booking.id ? 'Sending...' : 'Email'}
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-8 px-4 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -275,87 +382,47 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
             Back to Home
           </Button>
           
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">Admin Panel</h1>
-          <p className="text-lg text-slate-600">Manage bookings and client information</p>
+          <h1 className="text-3xl font-bold text-slate-800 mb-2">Admin Dashboard</h1>
+          <p className="text-lg text-slate-600">Manage your photography business</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>All Bookings</CardTitle>
-            <CardDescription>
-              {bookings.length} total booking{bookings.length !== 1 ? 's' : ''}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="text-center py-8">Loading bookings...</div>
-            ) : bookings.length === 0 ? (
-              <div className="text-center py-8 text-slate-500">No bookings found</div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Client</TableHead>
-                    <TableHead>Package</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {bookings.map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{booking.client_name}</div>
-                          <div className="text-sm text-slate-500">{booking.client_email}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{booking.package_name}</div>
-                          <div className="text-sm text-slate-500">${booking.package_price}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</div>
-                          <div className="text-sm text-slate-500">{booking.booking_time}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(booking.status)}>
-                          {booking.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setSelectedBooking(booking)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => sendConfirmationEmail(booking)}
-                            disabled={sendingEmail === booking.id}
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                          >
-                            <Mail className="w-4 h-4 mr-1" />
-                            {sendingEmail === booking.id ? 'Sending...' : 'Email'}
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setView('bookings')}>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calendar className="w-6 h-6 mr-3 text-blue-600" />
+                Booking Management
+              </CardTitle>
+              <CardDescription>
+                Manage client bookings, send confirmations, and view session details
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold text-slate-800">{bookings.length}</span>
+                <span className="text-sm text-slate-500">Total Bookings</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setView('transfers')}>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <CreditCard className="w-6 h-6 mr-3 text-green-600" />
+                Transfer Management
+              </CardTitle>
+              <CardDescription>
+                Manage Paystack transfers, create recipients, and track payment status
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold text-slate-800">₦</span>
+                <span className="text-sm text-slate-500">Paystack Integration</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </section>
   );

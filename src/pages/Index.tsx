@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +17,7 @@ import { PhotoPackage } from '@/data/packages';
 const Index = () => {
   const [currentView, setCurrentView] = useState<'home' | 'packages' | 'booking' | 'admin'>('home');
   const [selectedPackage, setSelectedPackage] = useState<PhotoPackage | null>(null);
+  const [isAnnual, setIsAnnual] = useState(false);
   const { isAdmin } = useUserRole();
 
   const handleBookNow = (packageData?: PhotoPackage) => {
@@ -27,19 +29,21 @@ const Index = () => {
     }
   };
 
-  const handleSelectPackage = (pkg: PhotoPackage) => {
+  const handleSelectPackage = (pkg: PhotoPackage, annual: boolean) => {
     setSelectedPackage(pkg);
+    setIsAnnual(annual);
     setCurrentView('booking');
   };
 
   const handleBackToHome = () => {
     setCurrentView('home');
     setSelectedPackage(null);
+    setIsAnnual(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-orange-50">
-      <Navigation />
+      <Navigation onBookNow={() => handleBookNow()} />
       
       {currentView === 'home' && (
         <>
@@ -173,6 +177,7 @@ const Index = () => {
       {currentView === 'booking' && (
         <BookingSection 
           selectedPackage={selectedPackage}
+          isAnnual={isAnnual}
           onBack={handleBackToHome}
         />
       )}

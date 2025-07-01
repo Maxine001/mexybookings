@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,53 +7,74 @@ import { Switch } from '@/components/ui/switch';
 import { Check, Clock, Users, MapPin, Camera, Star } from 'lucide-react';
 
 const ServicePackages = ({ onBookNow }) => {
-  const [isNight, setIsNight] = useState(false);
+  const [isAnnual, setIsAnnual] = useState(false);
 
   const packages = [
     {
       id: 'portrait',
-      name: 'LIFESTYLE SESSION - MOBILE',
-      dayPrice: 30000,
-      nightPrice:'',
-      duration: '45 minutes',
-      people: 'individual ',
-      location: 'indoor or outdoor',
+      name: 'Portrait Session',
+      monthlyPrice: 299,
+      annualPrice: 2988,
+      duration: '1 hour',
+      people: '1-2 people',
+      location: 'Studio or outdoor',
       description: 'Perfect for individual portraits, couples, or small family photos',
       features: [
-      '1 hour photo session',
-      '5 edited high-resolution photos',
-      'Online gallery access',
-      '1 outfit ',
-      'Personal and social media usage rights'
+        '1 hour photo session',
+        '20+ edited high-resolution photos',
+        'Online gallery for sharing',
+        'Print release included',
+        'Basic retouching'
       ],
       popular: false,
       icon: '👤'
     },
     {
       id: 'family',
-      name: 'LIFESTYLE SESSION - CAMERA',
-      dayPrice: 70000,
-      nightPrice: 85000,
-      duration: '45 minutes',
+      name: 'Family Package',
+      monthlyPrice: 449,
+      annualPrice: 4490,
+      duration: '1.5 hours',
       people: '3-6 people',
-      location: 'indoor or outdoor',
+      location: 'Multiple locations',
       description: 'Comprehensive family photography with multiple outfit changes',
       features: [
-      '1 hour photo session',
-      '5 edited high-resolution photos',
-      'Online gallery access',
-      '1 outfit ',
-      'Personal and social media usage rights'
+        '1.5 hour photo session',
+        '40+ edited high-resolution photos',
+        'Multiple location options',
+        'Outfit change included',
+        'Professional retouching',
+        'Custom photo book option'
       ],
       popular: true,
       icon: '👨‍👩‍👧‍👦'
     },
-    
+    {
+      id: 'wedding',
+      name: 'Wedding Photography',
+      monthlyPrice: 1299,
+      annualPrice: 12990,
+      duration: '8 hours',
+      people: 'Full wedding party',
+      location: 'Wedding venue',
+      description: 'Complete wedding day coverage with professional editing',
+      features: [
+        '8 hours of coverage',
+        '200+ edited photos',
+        'Ceremony & reception',
+        'Bridal preparations',
+        'Online gallery',
+        'USB drive with all photos',
+        'Engagement session included'
+      ],
+      popular: false,
+      icon: '💒'
+    },
     {
       id: 'event',
       name: 'Event Photography',
-      dayPrice: 599,
-      nightPrice: 5990,
+      monthlyPrice: 599,
+      annualPrice: 5990,
       duration: '3 hours',
       people: 'Up to 50 people',
       location: 'Event venue',
@@ -71,14 +93,14 @@ const ServicePackages = ({ onBookNow }) => {
   ];
 
   const getPrice = (pkg) => {
-    return isNight ? pkg.nightPrice : pkg.dayPrice;
+    return isAnnual ? pkg.annualPrice : pkg.monthlyPrice;
   };
 
   const getSavings = (pkg) => {
-    const dayCost = pkg.dayPrice * 12;
-    const nightCost = pkg.nightPrice;
-    const savings = dayCost - nightCost;
-    return Math.round((savings / dayCost) * 100);
+    const monthlyCost = pkg.monthlyPrice * 12;
+    const annualCost = pkg.annualPrice;
+    const savings = monthlyCost - annualCost;
+    return Math.round((savings / monthlyCost) * 100);
   };
 
   return (
@@ -96,19 +118,19 @@ const ServicePackages = ({ onBookNow }) => {
           
           {/* Pricing Toggle */}
           <div className="flex items-center justify-center gap-4 mb-2">
-            <span className={`text-sm font-medium ${!isNight ? 'text-slate-800' : 'text-slate-500'}`}>
-              Day Session
+            <span className={`text-sm font-medium ${!isAnnual ? 'text-slate-800' : 'text-slate-500'}`}>
+              Per Session
             </span>
             <Switch
-              checked={isNight}
-              onCheckedChange={setIsNight}
+              checked={isAnnual}
+              onCheckedChange={setIsAnnual}
               className="data-[state=checked]:bg-amber-500"
             />
-            <span className={`text-sm font-medium ${isNight ? 'text-slate-800' : 'text-slate-500'}`}>
-              Night Session
+            <span className={`text-sm font-medium ${isAnnual ? 'text-slate-800' : 'text-slate-500'}`}>
+              Annual Plan
             </span>
           </div>
-          {isNight && (
+          {isAnnual && (
             <p className="text-sm text-green-600 font-medium">Save up to 17% with annual billing</p>
           )}
         </div>
@@ -128,7 +150,7 @@ const ServicePackages = ({ onBookNow }) => {
                 </Badge>
               )}
               
-              {isNight && (
+              {isAnnual && (
                 <Badge className="absolute -top-3 right-4 bg-green-500 hover:bg-green-600">
                   Save {getSavings(pkg)}%
                 </Badge>
@@ -143,14 +165,14 @@ const ServicePackages = ({ onBookNow }) => {
                 
                 <div className="pt-4">
                   <div className="text-3xl font-bold text-slate-800">
-                    ₦{getPrice(pkg).toLocaleString()}
+                    ${getPrice(pkg)}
                   </div>
                   <div className="text-sm text-slate-500">
-                    {isNight ? 'per year' : 'starting price'}
+                    {isAnnual ? 'per year' : 'starting price'}
                   </div>
-                  {isNight && (
+                  {isAnnual && (
                     <div className="text-sm text-slate-400 mt-1">
-                      <span className="line-through">₦{(pkg.dayPrice * 12).toLocaleString()}/year</span>
+                      <span className="line-through">${pkg.monthlyPrice * 12}/year</span>
                     </div>
                   )}
                 </div>
