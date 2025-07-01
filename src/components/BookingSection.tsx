@@ -332,10 +332,10 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
             <h1 className="text-3xl font-bold text-slate-800 mb-2">Book Your Session</h1>
             {selectedPackage && (
               <p className="text-lg text-slate-600">
-                {selectedPackage.name} - ${getPackagePrice()}
+                {selectedPackage.name} - ₦{getPackagePrice().toLocaleString()}
                 {isAnnualUpgraded && !isAnnual && (
                   <span className="ml-2 text-sm bg-amber-100 text-amber-800 px-2 py-1 rounded-full">
-                    Upgraded to Annual
+                    Upgraded to Night Session
                   </span>
                 )}
               </p>
@@ -403,15 +403,15 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                             <p className="text-sm text-slate-600">{selectedPackage.description}</p>
                             {isAnnualUpgraded && !isAnnual && (
                               <p className="text-xs text-amber-700 mt-1 font-medium">
-                                ✨ Upgraded to Annual Plan for evening time slot
+                                ✨ Upgraded to Night Session for evening time slot
                               </p>
                             )}
                           </div>
                           <div className="text-right">
-                            <div className="text-xl font-bold text-slate-800">${getPackagePrice()}</div>
+                            <div className="text-xl font-bold text-slate-800">₦{getPackagePrice().toLocaleString()}</div>
                             <div className="text-sm text-slate-500">{selectedPackage.duration}</div>
                             {isAnnualUpgraded && !isAnnual && (
-                              <div className="text-xs text-amber-600">Annual Rate</div>
+                              <div className="text-xs text-amber-600">Night Session Rate</div>
                             )}
                           </div>
                         </div>
@@ -467,7 +467,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                               {time}
                               {eveningTimeSlots.includes(time) && (
                                 <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
-                                  Premium
+                                  Night Session
                                 </span>
                               )}
                             </div>
@@ -477,7 +477,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                     </Select>
                     {eveningTimeSlots.some(slot => timeSlots.includes(slot)) && (
                       <p className="text-xs text-slate-500 mt-2">
-                        * Evening slots (6PM-10PM) automatically upgrade to Annual pricing
+                        * Evening slots (6PM-10PM) automatically upgrade to Night Session pricing
                       </p>
                     )}
                   </div>
@@ -608,7 +608,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                           {selectedPackage?.name}
                           {isAnnualUpgraded && !isAnnual && (
                             <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">
-                              Annual
+                              Night Session
                             </span>
                           )}
                         </span>
@@ -625,7 +625,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                           {formData.time || 'Not selected'}
                           {formData.time && eveningTimeSlots.includes(formData.time) && (
                             <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded">
-                              Premium
+                              Night Session
                             </span>
                           )}
                         </span>
@@ -639,12 +639,12 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                       <hr className="my-4" />
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total:</span>
-                        <span>${getPackagePrice()}</span>
+                        <span>N{getPackagePrice()}</span>
                       </div>
                       {isAnnualUpgraded && !isAnnual && (
                         <div className="text-sm text-amber-700 bg-amber-50 p-3 rounded-lg">
                           <p className="font-medium">Evening Session Upgrade Applied</p>
-                          <p className="text-xs">Annual pricing applied for premium evening time slot (6PM-10PM)</p>
+                          <p className="text-xs">Night session pricing applied for evening time slot (6PM-10PM)</p>
                         </div>
                       )}
                     </div>
