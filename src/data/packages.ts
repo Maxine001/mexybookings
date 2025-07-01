@@ -15,7 +15,7 @@ export const photoPackages: PhotoPackage[] = [
     id: 'basic',
     name: 'LIFESTYLE SESSION - MOBILE',
     description: 'Perfect for individual headshots and simple portraits',
-    monthlyPrice: 299,
+    monthlyPrice: 30000,
     annualPrice: 'Not available', // Changed to string as per user request
     duration: '45 minutes',
     features: [
@@ -30,8 +30,8 @@ export const photoPackages: PhotoPackage[] = [
     id: 'standard',
     name: 'LIFESTYLE SESSION - CAMERA',
     description: 'Great for couples, families, or small groups',
-    monthlyPrice: 499,
-    annualPrice: 4990, // 10 months price (2 months free)
+    monthlyPrice: 70000,
+    annualPrice: 85000, // 10 months price (2 months free)
     duration: '',
     features: [
       '45 minutes photo session',

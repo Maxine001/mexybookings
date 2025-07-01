@@ -65,7 +65,7 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
             {/* Pricing Toggle */}
             <div className="flex items-center justify-center gap-4 mb-2">
               <span className={`text-sm font-medium ${!isAnnual ? 'text-slate-800' : 'text-slate-500'}`}>
-                Per Session
+                Day Session
               </span>
               <Switch
                 checked={isAnnual}
@@ -73,11 +73,11 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
                 className="data-[state=checked]:bg-amber-500"
               />
               <span className={`text-sm font-medium ${isAnnual ? 'text-slate-800' : 'text-slate-500'}`}>
-                Annual Plan
+                Night Session
               </span>
             </div>
             {isAnnual && (
-              <p className="text-sm text-green-600 font-medium">Save up to 17% with annual billing</p>
+              <p className="text-sm text-green-600 font-medium">The city sleeps, but our moments don’t. Capture your best moments with our night sessions</p>
             )}
           </div>
         </div>
@@ -100,11 +100,7 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
                     Most Popular
                   </Badge>
                 )}
-                {isAnnual && (
-                  <Badge className="absolute -top-2 right-4 bg-green-500 hover:bg-green-600">
-                    Save {getSavings(pkg)}%
-                  </Badge>
-                )}
+               
                 <CardTitle className="text-xl text-slate-800">{pkg.name}</CardTitle>
                 <CardDescription className="text-slate-600">{pkg.description}</CardDescription>
                 <div className="flex items-baseline mt-4">
@@ -132,6 +128,12 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
             <div className="bg-white border border-amber-200 rounded-lg p-6 max-w-md mx-auto mb-6">
               <h3 className="text-lg font-semibold text-slate-800 mb-2">Selected Package</h3>
               <p className="text-amber-600 font-medium">{selectedPackage.name}</p>
+              <p className="text-slate-600 mb-2">
+                {isAnnual ? 'Night Session Price' : 'Day Session Price'}: 
+                <span className="font-bold text-slate-800 ml-1">
+                  {formatPrice(getPrice(selectedPackage))}
+                </span>
+              </p>
             
             </div>
             <Button 
