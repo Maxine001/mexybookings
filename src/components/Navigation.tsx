@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Camera, Menu, User, Calendar, LogOut } from 'lucide-react';
@@ -17,9 +17,9 @@ const Navigation = ({ onBookNow }: NavigationProps) => {
 
   const navItems = [
     { label: 'Services', href: '#services' },
-    { label: 'Portfolio', href: '#portfolio' },
-    { label: 'About', href: '#about' },
-    { label: 'Contact', href: '#contact' },
+    { label: 'Portfolio', href: '/portfolio' },
+    { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/contact' },
   ];
 
   const handleAuthAction = () => {
@@ -56,13 +56,13 @@ const Navigation = ({ onBookNow }: NavigationProps) => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.label}
-                href={item.href}
+                to={item.href}
                 className="text-slate-600 hover:text-slate-800 transition-colors font-medium"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -88,14 +88,14 @@ const Navigation = ({ onBookNow }: NavigationProps) => {
             <SheetContent side="right" className="w-[300px]">
               <div className="flex flex-col space-y-6 mt-8">
                 {navItems.map((item) => (
-                  <a
+                  <Link
                     key={item.label}
-                    href={item.href}
+                    to={item.href}
                     className="text-lg font-medium text-slate-600 hover:text-slate-800 transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 ))}
                 <div className="pt-6 space-y-3">
                   <Button variant="ghost" className="w-full justify-start" onClick={handleAuthAction}>

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Check, Clock, Users, MapPin, Camera, Star } from 'lucide-react';
+import { Check, Clock, Users, MapPin, Camera, Star, Smartphone } from 'lucide-react';
 
 const ServicePackages = ({ onBookNow }) => {
   const [isAnnual, setIsAnnual] = useState(false);
@@ -12,80 +12,61 @@ const ServicePackages = ({ onBookNow }) => {
   const packages = [
     {
       id: 'portrait',
-      name: 'Portrait Session',
-      monthlyPrice: 299,
-      annualPrice: 2988,
+      name: 'LIFESTYLE SESSION- MOBILE',
+      monthlyPrice: 30000,
+      annualPrice: 'Not available',
       duration: '1 hour',
-      people: '1-2 people',
-      location: 'Studio or outdoor',
+      people: '1 person',
+      location: 'will assign location',
       description: 'Perfect for individual portraits, couples, or small family photos',
       features: [
-        '1 hour photo session',
-        '20+ edited high-resolution photos',
-        'Online gallery for sharing',
-        'Print release included',
+        '45 minutes photo session',
+        '5 edited high-resolution photos',
+        'Individual',
+        '1 outfit change',
         'Basic retouching'
       ],
       popular: false,
-      icon: '👤'
+      icon: <Smartphone className="mx-auto" />
     },
     {
       id: 'family',
-      name: 'Family Package',
-      monthlyPrice: 449,
-      annualPrice: 4490,
-      duration: '1.5 hours',
-      people: '3-6 people',
-      location: 'Multiple locations',
+      name: 'LIFESTYLE SESSION- CAMERA',
+      monthlyPrice: 70000,
+      annualPrice: 85000,
+      duration: '45 minutes photo session',
+      people: 'Individual',
+      location: 'will assign location',
       description: 'Comprehensive family photography with multiple outfit changes',
       features: [
-        '1.5 hour photo session',
-        '40+ edited high-resolution photos',
-        'Multiple location options',
-        'Outfit change included',
+        '45 minutes photo session',
+        '5 edited high-resolution photos',
+        'Individual',
+        '1 outfit change',
         'Professional retouching',
         'Custom photo book option'
       ],
       popular: true,
-      icon: '👨‍👩‍👧‍👦'
-    },
-    {
-      id: 'wedding',
-      name: 'Wedding Photography',
-      monthlyPrice: 1299,
-      annualPrice: 12990,
-      duration: '8 hours',
-      people: 'Full wedding party',
-      location: 'Wedding venue',
-      description: 'Complete wedding day coverage with professional editing',
-      features: [
-        '8 hours of coverage',
-        '200+ edited photos',
-        'Ceremony & reception',
-        'Bridal preparations',
-        'Online gallery',
-        'USB drive with all photos',
-        'Engagement session included'
-      ],
-      popular: false,
-      icon: '💒'
+      icon: <Camera className="mx-auto" />
     },
     {
       id: 'event',
-      name: 'Event Photography',
-      monthlyPrice: 599,
-      annualPrice: 5990,
+      name: 'All Kinds of Events',
+      monthlyPrice: 'Contact Us',
+      annualPrice: 'Contact Us',
       duration: '3 hours',
       people: 'Up to 50 people',
       location: 'Event venue',
-      description: 'Professional event coverage for corporate or private events',
+      description: 'Professional event coverage for corporate or private events. For further enquiries, contact us.',
       features: [
-        '3 hours of coverage',
-        '100+ edited photos',
-        'Candid and posed shots',
-        '48-hour delivery',
-        'Commercial usage rights',
-        'Group photo coordination'
+        'Weddings',
+        'Fashion shows',
+        'Company parties',
+        'Product launches',
+        'Family portraits',
+        'Anniversaries',
+        'Engagement parties',
+        'Bridal showers'
       ],
       popular: false,
       icon: '🎉'
@@ -93,15 +74,14 @@ const ServicePackages = ({ onBookNow }) => {
   ];
 
   const getPrice = (pkg) => {
-    return isAnnual ? pkg.annualPrice : pkg.monthlyPrice;
+    const price = isAnnual ? pkg.annualPrice : pkg.monthlyPrice;
+    if (typeof price === 'number') {
+      return `₦${price.toLocaleString('en-NG')}`;
+    }
+    return price; // for cases like 'Not available'
   };
 
-  const getSavings = (pkg) => {
-    const monthlyCost = pkg.monthlyPrice * 12;
-    const annualCost = pkg.annualPrice;
-    const savings = monthlyCost - annualCost;
-    return Math.round((savings / monthlyCost) * 100);
-  };
+  
 
   return (
     <section id="services" className="py-20 px-4">
@@ -119,7 +99,7 @@ const ServicePackages = ({ onBookNow }) => {
           {/* Pricing Toggle */}
           <div className="flex items-center justify-center gap-4 mb-2">
             <span className={`text-sm font-medium ${!isAnnual ? 'text-slate-800' : 'text-slate-500'}`}>
-              Per Session
+              Day Sessions
             </span>
             <Switch
               checked={isAnnual}
@@ -127,16 +107,16 @@ const ServicePackages = ({ onBookNow }) => {
               className="data-[state=checked]:bg-amber-500"
             />
             <span className={`text-sm font-medium ${isAnnual ? 'text-slate-800' : 'text-slate-500'}`}>
-              Annual Plan
+              Night Sessions
             </span>
           </div>
           {isAnnual && (
-            <p className="text-sm text-green-600 font-medium">Save up to 17% with annual billing</p>
+            <p className="text-sm text-green-600 font-medium"> The city sleeps, but our moments don’t. Capture your best moments with our night sessions</p>
           )}
         </div>
 
         {/* Package Grid */}
-        <div className="grid lg:grid-cols-2 xl:grid-cols-4 gap-8">
+        <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {packages.map((pkg) => (
             <Card 
               key={pkg.id} 
@@ -150,11 +130,6 @@ const ServicePackages = ({ onBookNow }) => {
                 </Badge>
               )}
               
-              {isAnnual && (
-                <Badge className="absolute -top-3 right-4 bg-green-500 hover:bg-green-600">
-                  Save {getSavings(pkg)}%
-                </Badge>
-              )}
               
               <CardHeader className="text-center pb-4">
                 <div className="text-4xl mb-4">{pkg.icon}</div>
@@ -164,17 +139,10 @@ const ServicePackages = ({ onBookNow }) => {
                 </CardDescription>
                 
                 <div className="pt-4">
-                  <div className="text-3xl font-bold text-slate-800">
-                    ${getPrice(pkg)}
-                  </div>
-                  <div className="text-sm text-slate-500">
-                    {isAnnual ? 'per year' : 'starting price'}
-                  </div>
-                  {isAnnual && (
-                    <div className="text-sm text-slate-400 mt-1">
-                      <span className="line-through">${pkg.monthlyPrice * 12}/year</span>
-                    </div>
-                  )}
+                <div className="text-3xl font-bold text-slate-800">
+                  {getPrice(pkg)}
+                </div>
+                  
                 </div>
               </CardHeader>
 
