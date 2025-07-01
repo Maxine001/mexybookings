@@ -54,7 +54,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
   ];
 
   const timeSlots = [
-    '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+    '12:00 PM',
     '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM',
     '6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM', '10:00 PM'
   ];
@@ -202,6 +202,13 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
 
   const nextStep = () => {
     if (currentStep < 4) setCurrentStep(currentStep + 1);
+  };
+
+  const isNightSessionNotAvailable = () => {
+    if (!selectedPackage) return false;
+    if (selectedPackage.id !== 'basic') return false;
+    if (!formData.time) return false;
+    return eveningTimeSlots.includes(formData.time);
   };
 
   const prevStep = () => {
@@ -677,13 +684,17 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                 Previous
               </Button>
               
-              {currentStep < 4 ? (
+              {currentStep < 4 && !isNightSessionNotAvailable() ? (
                 <Button 
                   onClick={nextStep}
                   className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6"
                 >
                   Next Step
                 </Button>
+              ) : currentStep < 4 && isNightSessionNotAvailable() ? (
+                <div className="text-red-600 font-semibold px-6 py-2">
+                  Night session not available for this package at selected time. please select a different time slot.
+                </div>
               ) : (
                 <Button 
                   onClick={handleSubmit}

@@ -136,12 +136,14 @@ const PackageSelection = ({ onBack, onSelectPackage }: PackageSelectionProps) =>
               </p>
             
             </div>
-            <Button 
-              onClick={handleContinue}
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-3 text-lg"
-            >
-              Continue to Booking
-            </Button>
+            {(selectedPackage.id !== 'basic' || !isAnnual) && (
+              <Button 
+                onClick={handleContinue}
+                className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-3 text-lg"
+              >
+                Continue to Booking
+              </Button>
+            )}
           </div>
         )}
       </div>

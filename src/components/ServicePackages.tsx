@@ -173,17 +173,23 @@ const ServicePackages = ({ onBookNow }) => {
                   ))}
                 </div>
 
-                <Button 
-                  onClick={() => onBookNow(pkg)}
-                  className={`w-full font-semibold py-6 rounded-xl transition-all duration-300 ${
-                    pkg.popular 
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg' 
-                      : 'bg-slate-800 hover:bg-slate-700 text-white'
-                  }`}
-                >
-                  <Camera className="w-4 h-4 mr-2" />
-                  Book {pkg.name}
-                </Button>
+                {(pkg.id === 'portrait' && isAnnual) ? (
+                  <div className="w-full font-semibold py-6 rounded-xl text-center text-red-600 border border-red-600">
+                    Night session not available for this package
+                  </div>
+                ) : (
+                  <Button 
+                    onClick={() => onBookNow(pkg)}
+                    className={`w-full font-semibold py-6 rounded-xl transition-all duration-300 ${
+                      pkg.popular 
+                        ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg' 
+                        : 'bg-slate-800 hover:bg-slate-700 text-white'
+                    }`}
+                  >
+                    <Camera className="w-4 h-4 mr-2" />
+                    Book {pkg.name}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}
