@@ -23,7 +23,7 @@ const Index = () => {
   const handleBookNow = (packageData?: PhotoPackage) => {
     if (packageData) {
       setSelectedPackage(packageData);
-      setCurrentView('booking');
+      setCurrentView('packages');
     } else {
       setCurrentView('packages');
     }

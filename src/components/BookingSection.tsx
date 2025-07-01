@@ -76,11 +76,11 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
           return;
         }
 
-        // Auto-populate email from user auth and name from profile
+        // Auto-populate email from user auth only, do not auto-populate name
         setFormData(prev => ({
           ...prev,
           clientEmail: user.email || '',
-          clientName: profile?.full_name || ''
+          clientName: ''
         }));
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -97,22 +97,32 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
   // Handle time selection with automatic annual upgrade for evening slots
   const handleTimeSelection = (selectedTime) => {
     handleInputChange('time', selectedTime);
-    
-    // Check if selected time is in evening slots and user wasn't already on annual
+
+    const dayTimeSlots = ['12:00 PM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM', '5:00 PM'];
+
     if (eveningTimeSlots.includes(selectedTime) && !isAnnualUpgraded) {
       setIsAnnualUpgraded(true);
       setShowUpgradeNotification(true);
-      
+
       toast({
         title: "Package Upgraded",
-        description: "You've selected a time that falls within the Annual Session (6PM–10PM). The session type and price have been updated.",
+        description: "Night Session (6PM–10PM). Price have been updated..",
         duration: 5000,
       });
-      
+
       // Hide notification after 8 seconds
       setTimeout(() => {
         setShowUpgradeNotification(false);
       }, 8000);
+    } else if (dayTimeSlots.includes(selectedTime) && isAnnualUpgraded) {
+      setIsAnnualUpgraded(false);
+      setShowUpgradeNotification(false);
+
+      toast({
+        title: "Package Downgraded",
+        description: "Day Session (6PM–10PM). Price have been updated..",
+        duration: 5000,
+      });
     }
   };
 
@@ -263,7 +273,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
         console.error('Booking error:', error);
         toast({
           title: "Booking Failed",
-          description: "There was an error processing your booking. Please try again.",
+          description: "There was an error processing your booking,check details. Please try again.",
           variant: "destructive",
         });
         return;
@@ -356,7 +366,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
             <Alert className="border-amber-200 bg-amber-50">
               <Info className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-amber-800">
-                You've selected a time that falls within the Annual Session (6PM–10PM). The session type and price have been updated to reflect premium evening rates.
+                Night Session (6PM–10PM).price have been updated.
               </AlertDescription>
             </Alert>
           </div>
@@ -482,11 +492,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                         ))}
                       </SelectContent>
                     </Select>
-                    {eveningTimeSlots.some(slot => timeSlots.includes(slot)) && (
-                      <p className="text-xs text-slate-500 mt-2">
-                        * Evening slots (6PM-10PM) automatically upgrade to Night Session pricing
-                      </p>
-                    )}
+                
                   </div>
                 </div>
               </div>
@@ -499,7 +505,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                 
                 <div>
                   <Label className="text-base font-medium text-slate-700 mb-2 block">
-                    Full Name *
+                    TikTok / Instagram username
                   </Label>
                   <Input
                     value={formData.clientName}
@@ -521,7 +527,6 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                     className="h-12"
                     readOnly
                   />
-                  <p className="text-xs text-slate-500 mt-1">Email is automatically filled from your account</p>
                 </div>
               </div>
             )}
@@ -693,7 +698,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false }) => {
                 </Button>
               ) : currentStep < 4 && isNightSessionNotAvailable() ? (
                 <div className="text-red-600 font-semibold px-6 py-2">
-                  Night session not available for this package at selected time. please select a different time slot.
+                  Night session unavailable for this package. please select a different time slot.
                 </div>
               ) : (
                 <Button 
