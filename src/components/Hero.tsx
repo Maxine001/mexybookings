@@ -137,7 +137,7 @@ const Hero = ({ onBookNow }) => {
               
               <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-lg">
                 <div className="text-sm text-slate-600">Starting from</div>
-                <div className="text-xl font-bold text-slate-800">$299</div>
+                <div className="text-xl font-bold text-slate-800">₦30,000</div>
               </div>
             </div>
           </div>
