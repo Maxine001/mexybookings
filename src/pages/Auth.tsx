@@ -109,11 +109,11 @@ const Auth = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="fullName">TikTok/Instagram username</Label>
                   <Input
                     id="fullName"
                     type="text"
-                    placeholder="Enter your full name"
+                    placeholder="TikTok/Instagram username"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required={!isLogin}
