@@ -88,8 +88,8 @@ const PackageSelection = ({ onBack, onSelectPackage, couplesToggle, setCouplesTo
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {photoPackages.map((pkg) => {
+        <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+          {photoPackages.filter(pkg => pkg.id !== 'premium').map((pkg) => {
             // Determine features based on couples toggle for lifestyle packages
             let features = pkg.features;
             if ((pkg.id === 'basic' || pkg.id === 'standard') && couplesToggle[pkg.id]) {
