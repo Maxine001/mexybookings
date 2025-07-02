@@ -1,7 +1,14 @@
-
 import { Camera, Mail, Phone, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
+  const scrollToServicePackages = () => {
+    const element = document.getElementById('service-packages');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <footer className="bg-slate-900 text-white py-16 px-4">
       <div className="max-w-7xl mx-auto">
@@ -18,12 +25,12 @@ const Footer = () => {
               Professional photography services with a modern approach to capturing your most precious moments.
             </p>
             <div className="flex space-x-4">
-              <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors cursor-pointer">
+              <a href="https://www.instagram.com/your_instagram" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors">
                 <Instagram className="w-5 h-5" />
-              </div>
-              <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors cursor-pointer">
+              </a>
+              <a href="https://www.facebook.com/your_facebook" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors">
                 <Facebook className="w-5 h-5" />
-              </div>
+              </a>
               <div className="w-10 h-10 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors cursor-pointer">
                 <Twitter className="w-5 h-5" />
               </div>
@@ -34,11 +41,21 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Services</h3>
             <ul className="space-y-2 text-slate-400">
-              <li className="hover:text-white transition-colors cursor-pointer">Portrait Photography</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Wedding Photography</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Family Sessions</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Event Photography</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Corporate Headshots</li>
+              <li className="hover:text-white transition-colors cursor-pointer" onClick={scrollToServicePackages}>
+                lifestyle / model session
+              </li>
+              <li className="hover:text-white transition-colors cursor-pointer" onClick={scrollToServicePackages}>
+                Wedding Photography
+              </li>
+              <li className="hover:text-white transition-colors cursor-pointer" onClick={scrollToServicePackages}>
+                Family Sessions
+              </li>
+              <li className="hover:text-white transition-colors cursor-pointer" onClick={scrollToServicePackages}>
+                Event Photography
+              </li>
+              <li className="hover:text-white transition-colors cursor-pointer" onClick={scrollToServicePackages}>
+                Corporate Headshots
+              </li>
             </ul>
           </div>
 
@@ -46,10 +63,17 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 text-slate-400">
-              <li className="hover:text-white transition-colors cursor-pointer">About Us</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Portfolio</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Pricing</li>
-              <li className="hover:text-white transition-colors cursor-pointer">Client Login</li>
+              <li>
+                <Link to="/about" className="hover:text-white transition-colors cursor-pointer">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/portfolio" className="hover:text-white transition-colors cursor-pointer">
+                  Portfolio
+                </Link>
+              </li>
+              <li className="hover:text-white transition-colors cursor-pointer" onClick={scrollToServicePackages}>Pricing</li>
               <li className="hover:text-white transition-colors cursor-pointer">FAQ</li>
             </ul>
           </div>
@@ -60,15 +84,15 @@ const Footer = () => {
             <div className="space-y-3 text-slate-400">
               <div className="flex items-center space-x-3">
                 <Mail className="w-5 h-5" />
-                <span>hello@capturestudio.com</span>
+                <span>sahmmexy25@gmail.com</span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="w-5 h-5" />
-                <span>(555) 123-4567</span>
+                <span>(+234) 0904 2515 461</span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="w-5 h-5" />
-                <span>123 Photo Street, NYC 10001</span>
+                <span>Online</span>
               </div>
             </div>
           </div>
