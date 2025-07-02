@@ -30,7 +30,7 @@ const Hero = ({ onBookNow }) => {
               
               <p className="text-xl text-slate-600 leading-relaxed max-w-lg">
                 Professional photography services with seamless online booking. 
-                From portraits to events, we make every moment unforgettable.
+                From lifestyle/modeling to events, we make every moment unforgettable.
               </p>
             </div>
 

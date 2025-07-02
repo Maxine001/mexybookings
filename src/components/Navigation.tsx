@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -41,6 +40,18 @@ const Navigation = ({ onBookNow }: NavigationProps) => {
     }
   };
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      const targetId = href.substring(1);
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+      setIsOpen(false);
+    }
+  };
+
   return (
     <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -60,6 +71,7 @@ const Navigation = ({ onBookNow }: NavigationProps) => {
                 key={item.label}
                 to={item.href}
                 className="text-slate-600 hover:text-slate-800 transition-colors font-medium"
+                onClick={(e) => handleNavClick(e, item.href)}
               >
                 {item.label}
               </Link>
@@ -92,7 +104,9 @@ const Navigation = ({ onBookNow }: NavigationProps) => {
                     key={item.label}
                     to={item.href}
                     className="text-lg font-medium text-slate-600 hover:text-slate-800 transition-colors"
-                    onClick={() => setIsOpen(false)}
+                    onClick={(e) => {
+                      handleNavClick(e, item.href);
+                    }}
                   >
                     {item.label}
                   </Link>

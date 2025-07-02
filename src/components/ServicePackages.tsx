@@ -89,7 +89,7 @@ const ServicePackages = ({ onBookNow }) => {
         {/* Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold text-slate-800 mb-4">
-            Photography Packages
+            Exclusive Packages
           </h2>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto mb-8">
             Choose the perfect package for your needs. All sessions include professional editing 
