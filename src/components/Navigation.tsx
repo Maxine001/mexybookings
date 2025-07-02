@@ -15,7 +15,7 @@ const Navigation = ({ onBookNow }: NavigationProps) => {
   const navigate = useNavigate();
 
   const navItems = [
-    { label: 'Services', href: '#services' },
+    { label: 'Services', href: '/packages' },
     { label: 'Portfolio', href: '/portfolio' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
