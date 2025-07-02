@@ -56,6 +56,20 @@ const Index = () => {
       {currentView === 'home' && (
         <>
           <Hero onBookNow={() => handleBookNow()} />
+             {/* Admin Access Button */}
+          {isAdmin && (
+            <section className="py-8 px-4">
+              <div className="max-w-4xl mx-auto text-center">
+                <Button
+                  onClick={() => setCurrentView('admin')}
+                  className="bg-slate-800 hover:bg-slate-900 text-white"
+                >
+                  <Shield className="w-4 h-4 mr-2" />
+                  Admin Panel
+                </Button>
+              </div>
+            </section>
+          )}
           <ServicePackages onBookNow={handleBookNow} />
           
           {/* Features Section */}
@@ -156,20 +170,7 @@ const Index = () => {
             </div>
           </section>
 
-          {/* Admin Access Button */}
-          {isAdmin && (
-            <section className="py-8 px-4">
-              <div className="max-w-4xl mx-auto text-center">
-                <Button
-                  onClick={() => setCurrentView('admin')}
-                  className="bg-slate-800 hover:bg-slate-900 text-white"
-                >
-                  <Shield className="w-4 h-4 mr-2" />
-                  Admin Panel
-                </Button>
-              </div>
-            </section>
-          )}
+          
 
           <Footer />
         </>

@@ -1,6 +1,6 @@
 import { Camera, Mail, Phone, MapPin, Instagram, Facebook, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import TikTokIcon from './TikTokIcon'; // Assuming you have a TikTokIcon component
+
 
 const Footer = () => {
   const scrollToServicePackages = () => {
