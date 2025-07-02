@@ -24,7 +24,7 @@ const Hero = ({ onBookNow }) => {
   const username = user?.user_metadata?.full_name || user?.email || 'User';
 
   return (
-    <section className="relative py-12 px-4 overflow-hidden">
+    <section className="relative py-6 px-4 overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/5 via-amber-500/5 to-orange-500/10"></div>
       
