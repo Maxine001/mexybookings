@@ -9,16 +9,16 @@ const Hero = ({ onBookNow }) => {
   const { user } = useAuth();
 
   const portfolioImages = [
-    "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1494790108755-2616c819ca2b?w=400&h=500&fit=crop", 
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&h=500&fit=crop",
-    "https://images.unsplash.com/photo-1502323777036-f29e3972d82f?w=400&h=500&fit=crop"
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_10_IMG_2592.JPG",
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_11_IMG_2593.JPG", 
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_12_IMG_2594.JPG",
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_15_IMG_2596.JPG",
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_14_IMG_2595.JPG",
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_16_IMG_2597.JPG",
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_21_IMG_2601.JPG",
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_19_IMG_2599.JPG",
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_21_IMG_2600.JPG",
+    "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_16_IMG_2597.JPG"
   ];
 
   const username = user?.user_metadata?.full_name || user?.email || 'User';
