@@ -16,7 +16,7 @@ export const photoPackages: PhotoPackage[] = [
     name: 'LIFESTYLE SESSION - MOBILE',
     description: 'Perfect for individual headshots and simple portraits',
     monthlyPrice: 30000,
-    annualPrice: 'Not available', // Changed to string as per user request
+    annualPrice: '', // Changed to string as per user request
     duration: '45 minutes',
     features: [
       '45 minutes photo session',

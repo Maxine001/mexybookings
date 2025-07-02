@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Check, Star } from 'lucide-react';
+import { ArrowLeft, Check, Star, ArrowDown } from 'lucide-react';
 import { photoPackages, PhotoPackage } from '@/data/packages';
+import { useToast } from '@/hooks/use-toast';
 
 interface PackageSelectionProps {
   onBack: () => void;
@@ -17,6 +18,7 @@ interface PackageSelectionProps {
 const PackageSelection = ({ onBack, onSelectPackage, couplesToggle, setCouplesToggle }: PackageSelectionProps) => {
   const [selectedPackage, setSelectedPackage] = useState<PhotoPackage | null>(null);
   const [isAnnual, setIsAnnual] = useState(false);
+  const { toast } = useToast();
 
   const handleContinue = () => {
     if (selectedPackage) {
@@ -111,7 +113,14 @@ const PackageSelection = ({ onBack, onSelectPackage, couplesToggle, setCouplesTo
                     ? 'border-amber-500 bg-amber-50' 
                     : 'border-slate-200 hover:border-amber-300'
                 } ${pkg.popular ? 'ring-2 ring-amber-500 ring-opacity-50' : ''}`}
-                onClick={() => setSelectedPackage(pkg)}
+                onClick={() => {
+                  setSelectedPackage(pkg);
+                  toast({
+                    title: "Scroll down to continue",
+                    description: <ArrowDown className="mx-auto mt-1" />,
+                    duration: 4000,
+                  });
+                }}
               >
                 <CardHeader className="relative">
                   {pkg.popular && (

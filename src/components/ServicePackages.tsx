@@ -14,7 +14,7 @@ const ServicePackages = ({ onBookNow }) => {
       id: 'portrait',
       name: 'LIFESTYLE SESSION- MOBILE',
       monthlyPrice: 30000,
-      annualPrice: 'Not available',
+      annualPrice: '',
       duration: '1 hour',
       people: '1 person',
       location: 'will assign location',
