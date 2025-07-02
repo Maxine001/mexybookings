@@ -3,8 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { ArrowRight, Play, Star } from 'lucide-react';
 import Autoplay from "embla-carousel-autoplay";
+import { useAuth } from '@/contexts/AuthContext';
 
 const Hero = ({ onBookNow }) => {
+  const { user } = useAuth();
+
   const portfolioImages = [
     "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&h=500&fit=crop",
     "https://images.unsplash.com/photo-1494790108755-2616c819ca2b?w=400&h=500&fit=crop", 
@@ -18,16 +21,23 @@ const Hero = ({ onBookNow }) => {
     "https://images.unsplash.com/photo-1502323777036-f29e3972d82f?w=400&h=500&fit=crop"
   ];
 
+  const username = user?.user_metadata?.full_name || user?.email || 'User';
+
   return (
-    <section className="relative py-20 px-4 overflow-hidden">
+    <section className="relative py-12 px-4 overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/5 via-amber-500/5 to-orange-500/10"></div>
       
       <div className="max-w-7xl mx-auto relative">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center ">
           {/* Left Content */}
           <div className="space-y-8">
-            <div className="flex items-center space-x-2 text-amber-600">
+            {user && (
+              <div className="text-lg font-semibold text-amber-600">
+                Welcome, {username}!
+              </div>
+            )}
+            <div className="flex items-center space-x-2 text-amber-600 ">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-current" />
@@ -35,7 +45,7 @@ const Hero = ({ onBookNow }) => {
               </div>
               <span className="text-sm font-medium">Trusted by 1000+ clients</span>
             </div>
-            
+
             <div className="space-y-6">
               <h1 className="text-5xl lg:text-6xl font-bold text-slate-800 leading-tight">
                 Capture Your
