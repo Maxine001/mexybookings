@@ -20,7 +20,7 @@ const Footer = () => {
               <div className="w-10 h-10 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
                 <Camera className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold">Capture Studio</span>
+              <span className="text-xl font-bold">Mexy Studio</span>
             </div>
             <p className="text-slate-400 leading-relaxed">
               Professional photography services with a modern approach to capturing your most precious moments.
