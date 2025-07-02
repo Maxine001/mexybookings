@@ -4,9 +4,11 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { ArrowRight, Play, Star } from 'lucide-react';
 import Autoplay from "embla-carousel-autoplay";
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = ({ onBookNow }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const portfolioImages = [
     "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_10_IMG_2592.JPG",
@@ -74,6 +76,7 @@ const Hero = ({ onBookNow }) => {
                 variant="outline" 
                 size="lg"
                 className="px-8 py-6 text-lg font-semibold rounded-xl border-2 hover:bg-slate-50"
+                onClick={() => navigate('/portfolio')}
               >
                 <Play className="w-5 h-5 mr-2" />
                 View Portfolio
