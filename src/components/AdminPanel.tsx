@@ -322,7 +322,7 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
                         <TableCell>
                           <div>
                             <div className="font-medium">{booking.package_name}</div>
-                            <div className="text-sm text-slate-500">${booking.package_price}</div>
+                            <div className="text-sm text-slate-500">₦{booking.package_price}</div>
                           </div>
                         </TableCell>
                         <TableCell>
