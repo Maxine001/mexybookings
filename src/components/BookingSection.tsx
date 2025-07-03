@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ArrowLeft, Calendar as CalendarIcon, Upload, Clock, CreditCard, Check, X, Info } from 'lucide-react';
+import { ArrowLeft, Calendar as CalendarIcon, Upload, Clock, Check, X, Info } from 'lucide-react';
+import PaymentPage from './PaymentPage';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,6 +19,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesToggle }: { selectedPackage: any; onBack: any; isAnnual?: boolean; couplesToggle: { [key: string]: boolean } }) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [showPayment, setShowPayment] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isAnnualUpgraded, setIsAnnualUpgraded] = useState(isAnnual);
@@ -54,7 +56,8 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
     { id: 1, title: 'Package & Date', desc: 'Select your session details' },
     { id: 2, title: 'Personal Info', desc: 'Tell us about yourself' },
     { id: 3, title: 'Upload & Notes', desc: 'Share inspiration photos' },
-    { id: 4, title: 'Payment', desc: 'Complete your booking' }
+    { id: 4, title: 'Payment', desc: 'Complete your booking' },
+    { id: 5, title: 'Review', desc: 'Review your booking' }
   ];
 
   const timeSlots = [
@@ -249,6 +252,10 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
       return;
     }
 
+    setShowPayment(true);
+  };
+
+  const handlePaymentComplete = async () => {
     setIsSubmitting(true);
 
     try {
@@ -264,7 +271,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
         client_email: formData.clientEmail,
         special_requests: formData.specialRequests || '',
         uploaded_images: formData.uploadedFiles || [],
-        status: 'pending'
+        status: 'payment_pending'
       };
 
       const { data, error } = await supabase
@@ -284,8 +291,8 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
       }
 
       toast({
-        title: "Booking Confirmed!",
-        description: "Your session has been booked successfully. You will receive a confirmation email shortly.",
+        title: "Booking Submitted!",
+        description: "Your booking has been submitted and is pending payment verification.",
       });
 
       // Reset form and go back to main page
@@ -331,6 +338,25 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
             </CardContent>
           </Card>
         </div>
+      </section>
+    );
+  }
+
+
+  // Show payment page
+  if (showPayment) {
+    return (
+      <section className="py-8 px-4 min-h-screen">
+        <PaymentPage
+          selectedPackage={selectedPackage}
+          bookingDetails={{
+            date: formData.date ? format(formData.date, "PPP") : '',
+            time: formData.time
+          }}
+          onBack={() => setShowPayment(false)}
+          onPaymentComplete={handlePaymentComplete}
+          isAnnual={isAnnualUpgraded}
+        />
       </section>
     );
   }
@@ -618,7 +644,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
             {/* Step 4: Payment */}
             {currentStep === 4 && (
               <div className="space-y-6">
-                <h3 className="text-xl font-semibold text-slate-800 mb-4">Complete Your Booking</h3>
+                <h3 className="text-xl font-semibold text-slate-800 mb-4">Review Your Booking</h3>
                 
                 {/* Booking Summary */}
                 <Card className="bg-slate-50">
@@ -674,14 +700,14 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
                   </CardContent>
                 </Card>
 
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-6">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6">
                   <div className="flex items-start">
-                    <CreditCard className="w-5 h-5 text-amber-600 mr-3 mt-0.5" />
+                    <Info className="w-5 h-5 text-green-600 mr-3 mt-0.5" />
                     <div>
-                      <h4 className="font-semibold text-slate-800 mb-2">Payment Information</h4>
+                      <h4 className="font-semibold text-slate-800 mb-2">Next: Bank Transfer Payment</h4>
                       <p className="text-slate-600 text-sm">
-                        A 50% deposit is required to secure your booking. The remaining balance will be due on the day of your session. 
-                        You will receive a secure payment link via email after clicking "Complete Booking".
+                        After clicking "Proceed to Payment", you'll see our bank account details for direct transfer. 
+                        Your booking will be confirmed once payment is received and verified.
                       </p>
                     </div>
                   </div>
@@ -693,7 +719,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
             <div className="flex justify-between pt-8 border-t">
               <Button 
                 variant="outline" 
-                onClick={prevStep}
+                onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
                 disabled={currentStep === 1}
                 className="px-6"
               >
@@ -717,7 +743,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
                   disabled={isSubmitting}
                   className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8"
                 >
-                  {isSubmitting ? 'Processing...' : 'Complete Booking'}
+                  {isSubmitting ? 'Processing...' : 'Proceed to Payment'}
                 </Button>
               )}
             </div>
