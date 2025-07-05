@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+
 const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesToggle }: { selectedPackage: any; onBack: any; isAnnual?: boolean; couplesToggle: { [key: string]: boolean } }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [showPayment, setShowPayment] = useState(false);
@@ -27,6 +28,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+ 
   
   const [formData, setFormData] = useState({
     packageId: selectedPackage?.id || '',
@@ -256,57 +258,13 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
   };
 
   const handlePaymentComplete = async () => {
-    setIsSubmitting(true);
+    toast({
+      title: "Payment Completed!",
+      description: "Your booking has been processed. You'll receive confirmation once payment is verified.",
+    });
 
-    try {
-      const packagePrice = getPackagePrice();
-      const bookingData = {
-        user_id: user.id,
-        package_id: selectedPackage?.id || 'unknown',
-        package_name: selectedPackage?.name || 'Unknown Package',
-        package_price: packagePrice,
-        booking_date: format(formData.date, 'yyyy-MM-dd'),
-        booking_time: formData.time,
-        client_name: formData.clientName,
-        client_email: formData.clientEmail,
-        special_requests: formData.specialRequests || '',
-        uploaded_images: formData.uploadedFiles || [],
-        status: 'payment_pending'
-      };
-
-      const { data, error } = await supabase
-        .from('bookings')
-        .insert([bookingData])
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Booking error:', error);
-        toast({
-          title: "Booking Failed",
-          description: "There was an error processing your booking,check details. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Booking Submitted!",
-        description: "Your booking has been submitted and is pending payment verification.",
-      });
-
-      // Reset form and go back to main page
-      onBack();
-    } catch (error) {
-      console.error('Unexpected error:', error);
-      toast({
-        title: "Booking Failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    // Reset form and go back to main page
+    onBack();
   };
 
   // Check if user is authenticated
@@ -351,7 +309,11 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
           selectedPackage={selectedPackage}
           bookingDetails={{
             date: formData.date ? format(formData.date, "PPP") : '',
-            time: formData.time
+            time: formData.time,
+            clientName: formData.clientName,
+            clientEmail: formData.clientEmail,
+            specialRequests: formData.specialRequests,
+            uploadedFiles: formData.uploadedFiles
           }}
           onBack={() => setShowPayment(false)}
           onPaymentComplete={handlePaymentComplete}
@@ -740,10 +702,10 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
               ) : (
                 <Button 
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={false}
                   className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8"
                 >
-                  {isSubmitting ? 'Processing...' : 'Proceed to Payment'}
+                   Proceed to Payment
                 </Button>
               )}
             </div>

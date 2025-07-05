@@ -13,6 +13,7 @@ import AdminPanel from '@/components/AdminPanel';
 import Footer from '@/components/Footer';
 import { useUserRole } from '@/hooks/useUserRole';
 import { PhotoPackage } from '@/data/packages';
+import { createClient } from '@supabase/supabase-js';
 
 const Index = () => {
   const [currentView, setCurrentView] = useState<'home' | 'packages' | 'booking' | 'admin'>('home');
@@ -48,6 +49,9 @@ const Index = () => {
       standard: false,
     });
   };
+
+
+ 
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-amber-50 to-orange-50">

@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Eye, Mail, Calendar, MapPin, Phone, User, DollarSign, CreditCard } from 'lucide-react';
+import { ArrowLeft, Eye, Mail, Calendar, MapPin, Phone, User, DollarSign, CreditCard, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -26,13 +25,27 @@ interface Booking {
   created_at: string;
 }
 
+interface Payment {
+  id: string;
+  reference: string;
+  amount: number;
+  currency: string;
+  customer_email: string;
+  status: string;
+  paid_at: string;
+  channel: string;
+  gateway_response: string;
+  created_at: string;
+}
+
 interface AdminPanelProps {
   onBack: () => void;
 }
 
 const AdminPanel = ({ onBack }: AdminPanelProps) => {
-  const [view, setView] = useState<'main' | 'bookings' | 'transfers'>('main');
+  const [view, setView] = useState<'main' | 'bookings' | 'transfers' | 'payments'>('main');
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
@@ -41,6 +54,7 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
 
   useEffect(() => {
     fetchBookings();
+    fetchPayments();
   }, []);
 
   const fetchBookings = async () => {
@@ -52,11 +66,6 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
 
       if (error) {
         console.error('Error fetching bookings:', error);
-        toast({
-          title: "Error",
-          description: "Failed to fetch bookings.",
-          variant: "destructive",
-        });
         return;
       }
 
@@ -65,6 +74,24 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
       console.error('Unexpected error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPayments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('payments')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching payments:', error);
+        return;
+      }
+
+      setPayments(data || []);
+    } catch (error) {
+      console.error('Unexpected error:', error);
     }
   };
 
@@ -117,6 +144,7 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'payment_pending': return 'bg-orange-100 text-orange-800';
       case 'confirmed': return 'bg-green-100 text-green-800';
       case 'completed': return 'bg-blue-100 text-blue-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
@@ -146,6 +174,85 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
 
   if (view === 'transfers') {
     return <TransferPanel onBack={() => setView('main')} />;
+  }
+
+  if (view === 'payments') {
+    return (
+      <section className="py-8 px-4 min-h-screen">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <Button 
+              variant="ghost" 
+              onClick={() => setView('main')}
+              className="mb-4 hover:bg-slate-100"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Admin Panel
+            </Button>
+            
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Payment Management</h1>
+            <p className="text-lg text-slate-600">View and manage Paystack payments</p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>All Payments</CardTitle>
+              <CardDescription>
+                {payments.length} total payment{payments.length !== 1 ? 's' : ''}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="text-center py-8">Loading payments...</div>
+              ) : payments.length === 0 ? (
+                <div className="text-center py-8 text-slate-500">No payments found</div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Reference</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Channel</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {payments.map((payment) => (
+                      <TableRow key={payment.id}>
+                        <TableCell>
+                          <div className="font-mono text-sm">{payment.reference}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-medium">{payment.customer_email}</div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="font-semibold">₦{payment.amount.toLocaleString()}</div>
+                          <div className="text-xs text-slate-500">{payment.currency}</div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{payment.channel}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={payment.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                            {payment.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div>{format(new Date(payment.paid_at), 'MMM dd, yyyy')}</div>
+                          <div className="text-sm text-slate-500">{format(new Date(payment.paid_at), 'HH:mm')}</div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+    );
   }
 
   if (selectedBooking) {
@@ -199,13 +306,19 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-600">Price</label>
-                  <p className="text-slate-800 font-semibold">${selectedBooking.package_price}</p>
+                  <p className="text-slate-800 font-semibold">₦{selectedBooking.package_price}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-600">Date & Time</label>
                   <p className="text-slate-800">
                     {format(new Date(selectedBooking.booking_date), 'PPP')} at {selectedBooking.booking_time}
                   </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-600">Status</label>
+                  <Badge className={getStatusColor(selectedBooking.status)}>
+                    {selectedBooking.status}
+                  </Badge>
                 </div>
               </CardContent>
             </Card>
@@ -322,7 +435,7 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
                         <TableCell>
                           <div>
                             <div className="font-medium">{booking.package_name}</div>
-                            <div className="text-sm text-slate-500">₦{(booking.package_price).toLocaleString()}</div>
+                            <div className="text-sm text-slate-500">₦{booking.package_price}</div>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -386,7 +499,7 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
           <p className="text-lg text-slate-600">Manage your photography business</p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setView('bookings')}>
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -405,10 +518,28 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
             </CardContent>
           </Card>
 
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setView('payments')}>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <CheckCircle className="w-6 h-6 mr-3 text-green-600" />
+                Payment Management
+              </CardTitle>
+              <CardDescription>
+                View Paystack payments, transaction history, and payment status
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold text-slate-800">{payments.length}</span>
+                <span className="text-sm text-slate-500">Total Payments</span>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setView('transfers')}>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <CreditCard className="w-6 h-6 mr-3 text-green-600" />
+                <CreditCard className="w-6 h-6 mr-3 text-purple-600" />
                 Transfer Management
               </CardTitle>
               <CardDescription>

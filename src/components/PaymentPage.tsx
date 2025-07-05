@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft, CheckCircle, AlertCircle, Banknote } from 'lucide-react';
+import { ArrowLeft, CheckCircle, ExternalLink, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PaymentPageProps {
   selectedPackage: any;
@@ -14,28 +14,8 @@ interface PaymentPageProps {
   isAnnual?: boolean;
 }
 
-declare global {
-  interface Window {
-    PaystackPop?: any;
-  }
-}
-
-const loadPaystackScript = (): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    if (window.PaystackPop) {
-      resolve();
-      return;
-    }
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load Paystack script'));
-    document.body.appendChild(script);
-  });
-};
-
 const PaymentPage = ({ selectedPackage, bookingDetails, onBack, onPaymentComplete, isAnnual = false }: PaymentPageProps) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
 
   const getPackagePrice = () => {
@@ -43,10 +23,78 @@ const PaymentPage = ({ selectedPackage, bookingDetails, onBack, onPaymentComplet
     return isAnnual ? selectedPackage.annualPrice : selectedPackage.monthlyPrice;
   };
 
-const initializePayment = async () => {
-    // Redirect user directly to Paystack payment page URL to handle payment, receipts, and confirmation
-    const paystackPaymentUrl = "https://paystack.shop/pay/rpp0l-t8me"; // Replace with your actual Paystack payment link
-    window.location.href = paystackPaymentUrl;
+const handlePaymentComplete = async () => {
+    setIsProcessing(true);
+    
+    try {
+      // Create the booking record with payment_pending status
+      // The webhook will update this to 'confirmed' once payment is successful
+      const packagePrice = getPackagePrice();
+
+      // Convert booking date to ISO format (YYYY-MM-DD)
+      let formattedDate = null;
+      if (bookingDetails?.date) {
+        const parsedDate = new Date(bookingDetails.date);
+        if (!isNaN(parsedDate.getTime())) {
+          formattedDate = parsedDate.toISOString().split('T')[0];
+        } else {
+          // Fallback: try to parse manually if Date constructor fails
+          // Remove ordinal suffixes like 'th', 'st', 'nd', 'rd'
+          const cleanedDateStr = bookingDetails.date.replace(/(\d+)(st|nd|rd|th)/, '$1');
+          const manualParsedDate = new Date(cleanedDateStr);
+          if (!isNaN(manualParsedDate.getTime())) {
+            formattedDate = manualParsedDate.toISOString().split('T')[0];
+          }
+        }
+      }
+
+      const bookingData = {
+        user_id: (await supabase.auth.getUser()).data.user?.id,
+        package_id: selectedPackage?.id || 'unknown',
+        package_name: selectedPackage?.name || 'Unknown Package',
+        package_price: packagePrice,
+        booking_date: formattedDate,
+        booking_time: bookingDetails?.time,
+        client_name: bookingDetails?.clientName || '',
+        client_email: bookingDetails?.clientEmail || '',
+        special_requests: bookingDetails?.specialRequests || '',
+        uploaded_images: bookingDetails?.uploadedFiles || [],
+        status: 'pending'
+      };
+
+      const { data, error } = await supabase
+        .from('bookings')
+        .insert([bookingData])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Booking error:', error);
+        toast({
+          title: "Booking Creation Failed",
+          description: "There was an error creating your booking. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Booking Created!",
+        description: "Your booking has been created and is awaiting payment confirmation.",
+      });
+
+      // Redirect back to complete the flow
+      onPaymentComplete();
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Booking Failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -62,16 +110,13 @@ const initializePayment = async () => {
         </Button>
         
         <h1 className="text-2xl font-bold text-slate-800 mb-2">Complete Payment</h1>
-        <p className="text-slate-600">Pay securely using Paystack</p>
+        <p className="text-slate-600">Complete your payment through Paystack</p>
       </div>
 
       {/* Booking Summary */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Banknote className="w-5 h-5 mr-2" />
-            Payment Summary
-          </CardTitle>
+          <CardTitle>Booking Summary</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -96,13 +141,54 @@ const initializePayment = async () => {
         </CardContent>
       </Card>
 
-      <Button 
-        onClick={initializePayment}
-        disabled={isSubmitting}
-        className="w-full bg-green-600 hover:bg-green-700"
-      >
-        {isSubmitting ? 'Processing Payment...' : 'Pay Now'}
-      </Button>
+      {/* Payment Instructions */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Make Payment</CardTitle>
+          <CardDescription>Click the link below to pay securely through Paystack</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+            <h4 className="font-semibold text-green-800 mb-2">Payment Instructions:</h4>
+            <ol className="text-sm text-green-700 space-y-1 list-decimal list-inside">
+              <li>Click the payment link below</li>
+              <li>Enter the exact amount: ₦{getPackagePrice()?.toLocaleString()}</li>
+              <li>Complete your payment on Paystack</li>
+              <li>Your booking will be automatically confirmed</li>
+            </ol>
+          </div>
+
+          <Button
+            asChild
+            className="w-full bg-green-600 hover:bg-green-700 mb-4"
+          >
+            <a 
+              href="https://paystack.shop/pay/rpp0l-t8me" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center justify-center"
+              onClick={handlePaymentComplete}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Pay Now - ₦{getPackagePrice()?.toLocaleString()}
+            </a>
+          </Button>
+
+          <Alert className="mb-4">
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              Please ensure you pay the exact amount of ₦{getPackagePrice()?.toLocaleString()} to avoid processing issues.
+            </AlertDescription>
+          </Alert>
+
+          <Alert>
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>
+              Your booking will be automatically confirmed once payment is processed by Paystack. You'll receive a confirmation email shortly after payment.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
     </div>
   );
 };

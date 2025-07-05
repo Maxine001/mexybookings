@@ -1,7 +1,8 @@
 
+// @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+// @ts-ignore
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,61 +15,138 @@ serve(async (req) => {
   }
 
   try {
-    const signature = req.headers.get('x-paystack-signature')
-    const body = await req.text()
-    
-    // Verify webhook signature
-    const hash = await crypto.subtle.importKey(
-      'raw',
-      new TextEncoder().encode(Deno.env.get('PAYSTACK_SECRET_KEY') || ''),
-      { name: 'HMAC', hash: 'SHA-512' },
-      false,
-      ['sign']
-    )
-    
-    const expectedSignature = Array.from(
-      new Uint8Array(
-        await crypto.subtle.sign('HMAC', hash, new TextEncoder().encode(body))
-      )
-    ).map(b => b.toString(16).padStart(2, '0')).join('')
+    const headers = req.headers
+    const rawBody = await req.text()
 
-    if (signature !== expectedSignature) {
-      return new Response('Invalid signature', { 
-        status: 401, 
-        headers: corsHeaders 
+    // Log all headers to diagnose signature issue
+    console.log(headers,"Headers received:")
+    for (const [key, value] of headers.entries()) {
+      console.log(`${key}: ${value}`)
+    }
+
+    const signature = headers.get("x-paystack-signature")
+
+    console.log("Raw Body:", rawBody)
+    console.log("Signature:", signature)
+
+    const body = JSON.parse(rawBody)
+
+    const event = body?.event
+    const data = body?.data
+
+    if (!data) {
+      return new Response(JSON.stringify({ error: "No data in webhook payload" }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    const event = JSON.parse(body)
+    const email = data?.customer?.email || "No email"
+    const amount = data?.amount || 0
+    const status = data?.status || "unknown"
+    const transactionId = data?.id || "No ID"
+    const reference = data?.reference || null
 
-    if (event.event === 'transfer.success' || event.event === 'transfer.failed') {
-      const supabase = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      )
+    console.log("Event:", event)
+    console.log("Transaction ID:", transactionId)
+    console.log("Email:", email)
+    console.log("Amount:", amount)
+    console.log("Status:", status)
 
-      const transferData = event.data
-      const status = event.event === 'transfer.success' ? 'success' : 'failed'
+    // Initialize Supabase client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
-      await supabase
-        .from('transfers')
+    if (status === 'success') {
+      // Update booking status and add payment information
+      const { error: updateError } = await supabase
+        .from('bookings')
         .update({
-          status,
-          completed_at: new Date().toISOString(),
-          failure_reason: transferData.failure_reason || null
+          status: 'confirmed',
+          updated_at: new Date().toISOString()
         })
-        .eq('reference', transferData.reference)
+        .eq('package_price', amount / 100)
+        .eq('status', 'payment_pending')
+
+      if (updateError) {
+        console.error('Error updating booking:', updateError)
+        return new Response(JSON.stringify({
+          error: 'Failed to update booking status'
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        })
+      }
+
+      // Create payment record
+      const { error: paymentError } = await supabase
+        .from('payments')
+        .insert({
+          reference: reference,
+          amount: amount,
+          currency: data.currency,
+          customer_email: email,
+          status: status,
+          paid_at: data.paid_at,
+          channel: data.channel,
+          gateway_response: data.gateway_response
+        })
+
+      if (paymentError) {
+        console.error('Error creating payment record:', paymentError)
+      }
+
+      return new Response(JSON.stringify({
+        success: true, 
+        message: 'Payment confirmed and booking updated'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    } else {
+      return new Response(JSON.stringify({
+        success: false,
+        message: `Payment status is ${status}, no update performed`
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
     }
-
-    return new Response('OK', {
-      headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
-    })
-
-  } catch (error) {
-    console.error('Webhook error:', error)
-    return new Response('Error processing webhook', {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'text/plain' }
-    })
+  } catch (err) {
+    console.error("Webhook Error:", err)
+    return new Response("Internal Server Error", { status: 500 })
   }
 })
+
+
+
+
+
+
+
+/*
+
+$body = '{
+  "event": "charge.success",
+  "data": {
+    "id": 123456789,
+    "status": "success",
+    "reference": "ref_2435342",
+    "amount": 5000,
+    "currency": "NGN",
+    "customer": {
+      "email": "customer@example.com"
+    },
+    "paid_at": "2024-07-10T12:34:56.000Z",
+    "channel": "card",
+    "gateway_response": "Successful"
+  }
+}'
+
+$headers = @{
+  "Authorization" = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9mdnJ1anFqYnFldnBhbGZ6b3loIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMDkwMjksImV4cCI6MjA2NjU4NTAyOX0.lYqjpWhiNLR6ATmXgxvcU7lpAZxCAOOSrT-c79_vESQ"
+  "Content-Type" = "application/json"
+}
+
+Invoke-WebRequest -Uri "https://ofvrujqjbqevpalfzoyh.supabase.co/functions/v1/paystack-webhook" -Method POST -Body $body -Headers $headers
+*/

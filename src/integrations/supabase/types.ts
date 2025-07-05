@@ -87,6 +87,49 @@ export type Database = {
         }
         Relationships: []
       }
+
+      payments: {
+        Row: {
+          amount: number
+          channel: string | null
+          created_at: string | null
+          currency: string | null
+          customer_email: string
+          gateway_response: string | null
+          id: string
+          paid_at: string | null
+          reference: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          channel?: string | null
+          created_at?: string | null
+          currency?: string | null
+          customer_email: string
+          gateway_response?: string | null
+          id?: string
+          paid_at?: string | null
+          reference: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          channel?: string | null
+          created_at?: string | null
+          currency?: string | null
+          customer_email?: string
+          gateway_response?: string | null
+          id?: string
+          paid_at?: string | null
+          reference?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       transfer_recipients: {
         Row: {
           account_name: string | null
