@@ -459,24 +459,7 @@ Photography Team`;
             <CardHeader>
               <CardTitle>Actions</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-4">
-              <Button
-                onClick={() => sendConfirmationEmail(selectedBooking)}
-                disabled={sendingEmail === selectedBooking.id}
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                {sendingEmail === selectedBooking.id ? 'Sending...' : 'Send Confirmation Email'}
-              </Button>
-              
-              <Button
-                onClick={() => updateBookingStatus(selectedBooking.id, 'confirmed')}
-                disabled={selectedBooking.status === 'confirmed'}
-                variant="outline"
-              >
-                Mark as Confirmed
-              </Button>
-              
+          <CardContent className="flex flex-wrap gap-4">
               <Button
                 onClick={() => updateBookingStatus(selectedBooking.id, 'completed')}
                 disabled={selectedBooking.status === 'completed'}
