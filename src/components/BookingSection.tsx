@@ -57,6 +57,14 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
     return basePrice;
   };
 
+  // Helper function to format date to local YYYY-MM-DD string
+  const formatDateToLocalISO = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Fetch booked time slots for selected date
   useEffect(() => {
     const fetchBookedTimeSlots = async () => {
@@ -67,10 +75,12 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
       }
 
       try {
+        const localDateStr = formatDateToLocalISO(formData.date);
+
         const { data, error } = await supabase
           .from('bookings')
           .select('booking_time')
-          .eq('booking_date', formData.date.toISOString().split('T')[0])
+          .eq('booking_date', localDateStr)
           .eq('status', 'confirmed');
 
         if (error) {
@@ -500,11 +510,25 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
+                    <Calendar
                           mode="single"
                           selected={formData.date}
-                          onSelect={(date) => handleInputChange('date', date)}
-                          disabled={(date) => date < new Date()}
+                          onSelect={(date) => {
+                            if (!date) {
+                              handleInputChange('date', null);
+                              return;
+                            }
+                            // Normalize date to midnight local time to avoid timezone issues
+                            const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                            handleInputChange('date', normalizedDate);
+                          }}
+                          disabled={(date) => {
+                            const today = new Date();
+                            // Normalize both dates to midnight local time for comparison
+                            const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                            const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                            return normalizedDate < normalizedToday;
+                          }}
                           initialFocus
                           className="pointer-events-auto"
                         />

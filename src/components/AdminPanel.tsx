@@ -53,6 +53,13 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // Helper function to format booking_date as local date string without timezone shift
+  const formatBookingDate = (dateStr: string) => {
+    // Parse date string as local date by appending 'T00:00:00'
+    const localDate = new Date(dateStr + 'T00:00:00');
+    return format(localDate, 'PPP');
+  };
+
   // Default message template
   const getDefaultMessage = (booking: Booking) => {
     return `Dear ${booking.client_name},
@@ -60,7 +67,7 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
 Thank you for your payment! Your photography session has been confirmed.
 
 BOOKING DETAILS:
-📅 Date: ${format(new Date(booking.booking_date), 'PPP')}
+📅 Date: ${formatBookingDate(booking.booking_date)}
 ⏰ Time: ${booking.booking_time}
 📦 Package: ${booking.package_name}
 💰 Amount Paid: ₦${booking.package_price?.toLocaleString()}
@@ -79,6 +86,40 @@ Photography Team`;
   useEffect(() => {
     fetchBookings();
     fetchPayments();
+
+    // Subscribe to real-time booking updates
+    const bookingSubscription = supabase
+      .channel('public:bookings')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'bookings' },
+        (payload) => {
+          console.log('Booking change received:', payload);
+          // Update bookings state based on event type
+          setBookings((currentBookings) => {
+            switch (payload.eventType) {
+              case 'INSERT':
+                if (!payload.new) return currentBookings;
+                return [payload.new as Booking, ...currentBookings];
+              case 'UPDATE':
+                if (!payload.new) return currentBookings;
+                return currentBookings.map((booking) =>
+                  booking.id === (payload.new as Booking).id ? (payload.new as Booking) : booking
+                );
+              case 'DELETE':
+                if (!payload.old) return currentBookings;
+                return currentBookings.filter((booking) => booking.id !== (payload.old as Booking).id);
+              default:
+                return currentBookings;
+            }
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(bookingSubscription);
+    };
   }, []);
 
   const fetchBookings = async () => {
@@ -263,7 +304,7 @@ Photography Team`;
                       </div>
                       <div className="text-sm text-slate-600 mb-3">
                         <p>{booking.package_name} - ₦{booking.package_price?.toLocaleString()}</p>
-                        <p>{format(new Date(booking.booking_date), 'PPP')} at {booking.booking_time}</p>
+                        <p>{formatBookingDate(booking.booking_date)} at {booking.booking_time}</p>
                       </div>
                       <Button
                         size="sm"
@@ -420,7 +461,7 @@ Photography Team`;
                 <div>
                   <label className="text-sm font-medium text-slate-600">Date & Time</label>
                   <p className="text-slate-800">
-                    {format(new Date(selectedBooking.booking_date), 'PPP')} at {selectedBooking.booking_time}
+                    {formatBookingDate(selectedBooking.booking_date)} at {selectedBooking.booking_time}
                   </p>
                 </div>
                 <div>
@@ -532,7 +573,7 @@ Photography Team`;
                         </TableCell>
                         <TableCell>
                           <div>
-                            <div>{format(new Date(booking.booking_date), 'MMM dd, yyyy')}</div>
+                          <div>{formatBookingDate(booking.booking_date)}</div>
                             <div className="text-sm text-slate-500">{booking.booking_time}</div>
                           </div>
                         </TableCell>
