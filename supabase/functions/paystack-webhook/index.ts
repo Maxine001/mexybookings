@@ -19,10 +19,7 @@ serve(async (req) => {
     const rawBody = await req.text()
 
     // Log all headers to diagnose signature issue
-    console.log(headers,"Headers received:")
-    for (const [key, value] of headers.entries()) {
-      console.log(`${key}: ${value}`)
-    }
+    console.log(createClient)
 
     const signature = headers.get("x-paystack-signature")
 
@@ -131,7 +128,7 @@ $body = '{
   "data": {
     "id": 123456789,
     "status": "success",
-    "reference": "ref_2435342",
+    "reference": "ref_2662772",
     "amount": 5000,
     "currency": "NGN",
     "customer": {
@@ -149,4 +146,22 @@ $headers = @{
 }
 
 Invoke-WebRequest -Uri "https://ofvrujqjbqevpalfzoyh.supabase.co/functions/v1/paystack-webhook" -Method POST -Body $body -Headers $headers
+*/
+
+
+/*
+
+const crypto = require('crypto');
+const secret = process.env.PAYSTACK_SECRET_KEY;
+// Using Express
+app.post("/my/webhook/url", function(req, res) {
+    //validate event
+    const hash = crypto.createHmac('sha512', secret).update(JSON.stringify(req.body)).digest('hex');
+    if (hash == req.headers['x-paystack-signature']) {
+    // Retrieve the request's body
+    const event = req.body;
+    // Do something with event  
+    }
+    res.send(200);
+});
 */
