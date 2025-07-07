@@ -40,7 +40,7 @@ export const useUserRole = () => {
             // Find highest priority role
             const highestRole: 'admin' | 'user' = rolePriority.find(r => roles.includes(r)) || 'user';
             if (data.length > 1) {
-              console.info(`Multiple roles found for user, selecting highest priority role: ${highestRole}`);
+              console.info(`Multiple roles found for user, selecting highest priority role:`);
             }
             setRole(highestRole);
           } else {
