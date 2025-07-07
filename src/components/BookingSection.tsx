@@ -28,8 +28,11 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
- 
-  
+
+  // New state to store booked time slots for selected date
+  const [bookedTimeSlots, setBookedTimeSlots] = useState<string[]>([]);
+  const [allSlotsBooked, setAllSlotsBooked] = useState(false);
+
   const [formData, setFormData] = useState({
     packageId: selectedPackage?.id || '',
     date: null,
@@ -53,6 +56,50 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
     }
     return basePrice;
   };
+
+  // Fetch booked time slots for selected date
+  useEffect(() => {
+    const fetchBookedTimeSlots = async () => {
+      if (!formData.date) {
+        setBookedTimeSlots([]);
+        setAllSlotsBooked(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('bookings')
+          .select('booking_time')
+          .eq('booking_date', formData.date.toISOString().split('T')[0])
+          .eq('status', 'confirmed');
+
+        if (error) {
+          console.error('Error fetching booked time slots:', error);
+          toast({
+            title: "Error",
+            description: "Failed to fetch booked time slots.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const bookedTimes = data ? data.map((item) => item.booking_time) : [];
+        setBookedTimeSlots(bookedTimes);
+
+        // Check if all time slots are booked
+        setAllSlotsBooked(bookedTimes.length >= timeSlots.length);
+
+        // If all slots booked, clear selected time
+        if (bookedTimes.length >= timeSlots.length) {
+          setFormData((prev) => ({ ...prev, time: '' }));
+        }
+      } catch (error) {
+        console.error('Unexpected error fetching booked time slots:', error);
+      }
+    };
+
+    fetchBookedTimeSlots();
+  }, [formData.date]);
 
   const steps = [
     { id: 1, title: 'Package & Date', desc: 'Select your session details' },
@@ -469,13 +516,13 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
                     <Label className="text-base font-medium text-slate-700 mb-2 block">
                       Preferred Time *
                     </Label>
-                    <Select value={formData.time} onValueChange={handleTimeSelection}>
+                    <Select value={formData.time} onValueChange={handleTimeSelection} disabled={allSlotsBooked}>
                       <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Select time slot" />
+                        <SelectValue placeholder={allSlotsBooked ? "All time slots booked, please select next day" : "Select time slot"} />
                       </SelectTrigger>
                       <SelectContent>
                         {timeSlots.map((time) => (
-                          <SelectItem key={time} value={time}>
+                          <SelectItem key={time} value={time} disabled={bookedTimeSlots.includes(time)}>
                             <div className="flex items-center">
                               <Clock className="w-4 h-4 mr-2" />
                               {time}
@@ -692,6 +739,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
                 <Button 
                   onClick={nextStep}
                   className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-6"
+                  disabled={allSlotsBooked && !formData.time}
                 >
                   Next Step
                 </Button>

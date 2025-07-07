@@ -60,34 +60,30 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
+      configurations: {
         Row: {
           created_at: string | null
-          full_name: string | null
           id: string
-          phone_number: string | null
-          role: string | null
+          key: string
           updated_at: string | null
+          value: string
         }
         Insert: {
           created_at?: string | null
-          full_name?: string | null
-          id: string
-          phone_number?: string | null
-          role?: string | null
+          id?: string
+          key: string
           updated_at?: string | null
+          value: string
         }
         Update: {
           created_at?: string | null
-          full_name?: string | null
           id?: string
-          phone_number?: string | null
-          role?: string | null
+          key?: string
           updated_at?: string | null
+          value?: string
         }
         Relationships: []
       }
-
       payments: {
         Row: {
           amount: number
@@ -126,6 +122,60 @@ export type Database = {
           paid_at?: string | null
           reference?: string
           status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      paystack_events: {
+        Row: {
+          created_at: string | null
+          event_type: string
+          id: number
+          payload: Json
+          processed: boolean | null
+          processed_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_type: string
+          id?: never
+          payload: Json
+          processed?: boolean | null
+          processed_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_type?: string
+          id?: never
+          payload?: Json
+          processed?: boolean | null
+          processed_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          phone_number: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          phone_number?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          phone_number?: string | null
+          role?: string | null
           updated_at?: string | null
         }
         Relationships: []

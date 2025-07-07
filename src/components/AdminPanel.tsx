@@ -3,13 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Eye, Mail, Calendar, MapPin, Phone, User, DollarSign, CreditCard, CheckCircle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft, Eye, Mail, Calendar, CheckCircle, MessageSquare, Send } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import type { Json } from '@/integrations/supabase/types';
-import TransferPanel from './TransferPanel';
 
 interface Booking {
   id: string;
@@ -43,14 +43,38 @@ interface AdminPanelProps {
 }
 
 const AdminPanel = ({ onBack }: AdminPanelProps) => {
-  const [view, setView] = useState<'main' | 'bookings' | 'transfers' | 'payments'>('main');
+  const [view, setView] = useState<'main' | 'bookings' | 'payments' | 'messages'>('main');
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+  const [customMessage, setCustomMessage] = useState('');
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Default message template
+  const getDefaultMessage = (booking: Booking) => {
+    return `Dear ${booking.client_name},
+
+Thank you for your payment! Your photography session has been confirmed.
+
+BOOKING DETAILS:
+📅 Date: ${format(new Date(booking.booking_date), 'PPP')}
+⏰ Time: ${booking.booking_time}
+📦 Package: ${booking.package_name}
+💰 Amount Paid: ₦${booking.package_price?.toLocaleString()}
+
+📍 LOCATION:
+[Location will be shared 24 hours before your session]
+
+We're excited to capture your special moments! Please arrive 15 minutes early and feel free to bring any props or outfits you'd like to include.
+
+If you have any questions, please don't hesitate to reach out.
+
+Best regards,
+Photography Team`;
+  };
 
   useEffect(() => {
     fetchBookings();
@@ -123,19 +147,19 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
     }
   };
 
-  const sendConfirmationEmail = async (booking: Booking) => {
+  const sendConfirmationEmail = async (booking: Booking, message?: string) => {
     setSendingEmail(booking.id);
     
     // Simulate sending email (in a real app, you'd implement this with an edge function)
     setTimeout(() => {
       setSendingEmail(null);
       toast({
-        title: "Email Sent",
-        description: `Confirmation email sent to ${booking.client_email}`,
+        title: "Message Sent",
+        description: `Confirmation message sent to ${booking.client_email}`,
       });
       
       // Update booking status to confirmed
-      if (booking.status === 'pending') {
+      if (booking.status === 'pending' || booking.status === 'payment_pending') {
         updateBookingStatus(booking.id, 'confirmed');
       }
     }, 2000);
@@ -172,8 +196,93 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
     );
   };
 
-  if (view === 'transfers') {
-    return <TransferPanel onBack={() => setView('main')} />;
+  if (view === 'messages') {
+    return (
+      <section className="py-8 px-4 min-h-screen">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <Button 
+              variant="ghost" 
+              onClick={() => setView('main')}
+              className="mb-4 hover:bg-slate-100"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Admin Panel
+            </Button>
+            
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Client Messaging</h1>
+            <p className="text-lg text-slate-600">Send confirmation messages to clients</p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Default Confirmation Message Template</CardTitle>
+              <CardDescription>
+                This template will be used for booking confirmations. You can customize it for each client.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                value={customMessage || (bookings.length > 0 ? getDefaultMessage(bookings[0]) : '')}
+                onChange={(e) => setCustomMessage(e.target.value)}
+                placeholder="Default message template..."
+                className="min-h-[300px] mb-4"
+              />
+              <div className="text-sm text-slate-600">
+                <p className="font-medium mb-2">Available variables in messages:</p>
+                <ul className="list-disc list-inside space-y-1">
+                  <li>Booking date and time</li>
+                  <li>Package name and price</li>
+                  <li>Client name</li>
+                  <li>Location (to be added manually)</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Recent Bookings</CardTitle>
+              <CardDescription>Send confirmation messages to clients</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {bookings.length === 0 ? (
+                <div className="text-center py-8 text-slate-500">No bookings found</div>
+              ) : (
+                <div className="space-y-4">
+                  {bookings.slice(0, 5).map((booking) => (
+                    <div key={booking.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h4 className="font-medium">{booking.client_name}</h4>
+                          <p className="text-sm text-slate-500">{booking.client_email}</p>
+                        </div>
+                        <Badge className={getStatusColor(booking.status)}>
+                          {booking.status}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-slate-600 mb-3">
+                        <p>{booking.package_name} - ₦{booking.package_price?.toLocaleString()}</p>
+                        <p>{format(new Date(booking.booking_date), 'PPP')} at {booking.booking_time}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => sendConfirmationEmail(booking, customMessage || getDefaultMessage(booking))}
+                        disabled={sendingEmail === booking.id}
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                      >
+                        <Send className="w-4 h-4 mr-1" />
+                        {sendingEmail === booking.id ? 'Sending...' : 'Send Confirmation'}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+    );
   }
 
   if (view === 'payments') {
@@ -276,7 +385,7 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <User className="w-5 h-5 mr-2" />
+                  <Calendar className="w-5 h-5 mr-2" />
                   Client Information
                 </CardTitle>
               </CardHeader>
@@ -459,15 +568,6 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
                               <Eye className="w-4 h-4 mr-1" />
                               View
                             </Button>
-                            <Button
-                              size="sm"
-                              onClick={() => sendConfirmationEmail(booking)}
-                              disabled={sendingEmail === booking.id}
-                              className="bg-green-600 hover:bg-green-700 text-white"
-                            >
-                              <Mail className="w-4 h-4 mr-1" />
-                              {sendingEmail === booking.id ? 'Sending...' : 'Email'}
-                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -536,20 +636,20 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setView('transfers')}>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setView('messages')}>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <CreditCard className="w-6 h-6 mr-3 text-purple-600" />
-                Transfer Management
+                <MessageSquare className="w-6 h-6 mr-3 text-purple-600" />
+                Client Messaging
               </CardTitle>
               <CardDescription>
-                Manage Paystack transfers, create recipients, and track payment status
+                Send confirmation messages with booking details and location information
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-slate-800">₦</span>
-                <span className="text-sm text-slate-500">Paystack Integration</span>
+                <span className="text-2xl font-bold text-slate-800">📧</span>
+                <span className="text-sm text-slate-500">Message Templates</span>
               </div>
             </CardContent>
           </Card>
