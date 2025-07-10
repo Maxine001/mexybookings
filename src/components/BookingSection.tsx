@@ -58,12 +58,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
   };
 
   // Helper function to format date to local YYYY-MM-DD string
-  const formatDateToLocalISO = (date) => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+
 
   // Fetch booked time slots for selected date
   useEffect(() => {
@@ -75,12 +70,10 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
       }
 
       try {
-        const localDateStr = formatDateToLocalISO(formData.date);
-
         const { data, error } = await supabase
           .from('bookings')
           .select('booking_time')
-          .eq('booking_date', localDateStr)
+          .eq('booking_date', formData.date.toISOString().split('T')[0])
           .eq('status', 'confirmed');
 
         if (error) {
@@ -93,14 +86,19 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
           return;
         }
 
-        const bookedTimes = data ? data.map((item) => item.booking_time) : [];
-        setBookedTimeSlots(bookedTimes);
+        // Debug log to check fetched booking_time values
+        console.log('Fetched booked times from DB:', data);
+
+        const bookedTimesRaw = data ? data.map((item) => item.booking_time) : [];
+
+        // Remove normalization, use booking_time values directly as they are already in correct format
+        setBookedTimeSlots(bookedTimesRaw);
 
         // Check if all time slots are booked
-        setAllSlotsBooked(bookedTimes.length >= timeSlots.length);
+        setAllSlotsBooked(bookedTimesRaw.length >= timeSlots.length);
 
         // If all slots booked, clear selected time
-        if (bookedTimes.length >= timeSlots.length) {
+        if (bookedTimesRaw.length >= timeSlots.length) {
           setFormData((prev) => ({ ...prev, time: '' }));
         }
       } catch (error) {
@@ -513,22 +511,8 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
                     <Calendar
                           mode="single"
                           selected={formData.date}
-                          onSelect={(date) => {
-                            if (!date) {
-                              handleInputChange('date', null);
-                              return;
-                            }
-                            // Normalize date to midnight local time to avoid timezone issues
-                            const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                            handleInputChange('date', normalizedDate);
-                          }}
-                          disabled={(date) => {
-                            const today = new Date();
-                            // Normalize both dates to midnight local time for comparison
-                            const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-                            const normalizedToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                            return normalizedDate < normalizedToday;
-                          }}
+                          onSelect={(date) => handleInputChange('date', date)}
+                          disabled={(date) => date < new Date()}
                           initialFocus
                           className="pointer-events-auto"
                         />
@@ -546,17 +530,21 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
                       </SelectTrigger>
                       <SelectContent>
                         {timeSlots.map((time) => (
-                          <SelectItem key={time} value={time} disabled={bookedTimeSlots.includes(time)}>
-                            <div className="flex items-center">
-                              <Clock className="w-4 h-4 mr-2" />
-                              {time}
-                              {eveningTimeSlots.includes(time) && (
-                                <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
-                                  Night Session
-                                </span>
-                              )}
-                            </div>
-                          </SelectItem>
+                      <SelectItem 
+                        key={time} 
+                        value={time} 
+                        disabled={bookedTimeSlots.some(bookedTime => bookedTime.trim().toUpperCase() === time.trim().toUpperCase())}
+                      >
+                        <div className="flex items-center">
+                          <Clock className="w-4 h-4 mr-2" />
+                          {time}
+                          {eveningTimeSlots.includes(time) && (
+                            <span className="ml-2 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded">
+                              Night Session
+                            </span>
+                          )}
+                        </div>
+                      </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>

@@ -55,6 +55,10 @@ const AdminPanel = ({ onBack }: AdminPanelProps) => {
 
   // Helper function to format booking_date as local date string without timezone shift
   const formatBookingDate = (dateStr: string) => {
+    if (!dateStr) {
+      // If booking_date is missing, return current date formatted
+      return format(new Date(), 'PPP');
+    }
     // Parse date string as local date by appending 'T00:00:00'
     const localDate = new Date(dateStr + 'T00:00:00');
     return format(localDate, 'PPP');
