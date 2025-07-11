@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useUserRole } from '@/hooks/useUserRole';
 
 
 const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesToggle }: { selectedPackage: any; onBack: any; isAnnual?: boolean; couplesToggle: { [key: string]: boolean } }) => {
@@ -28,6 +29,9 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Use user role hook to get role info
+  const { role, loading: roleLoading, isAdmin } = useUserRole();
 
   // New state to store booked time slots for selected date
   const [bookedTimeSlots, setBookedTimeSlots] = useState<string[]>([]);
@@ -68,6 +72,9 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
         setAllSlotsBooked(false);
         return;
       }
+
+      // Ensure booked slots are fetched for all users regardless of role
+      // Role-based filtering removed to show booked slots to all users
 
       try {
         // Adjust date by adding 1 day to align with trigger function adjustment in DB
