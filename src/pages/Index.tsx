@@ -59,7 +59,9 @@ const Index = () => {
       
       {currentView === 'home' && (
         <>
-         {/* Admin Access Button */}
+        
+          <Hero onBookNow={() => handleBookNow()} />
+             {/* Admin Access Button */}
           {isAdmin && (
             <section className="py-8 px-4">
               <div className="max-w-4xl mx-auto text-center">
@@ -73,7 +75,6 @@ const Index = () => {
               </div>
             </section>
           )}
-          <Hero onBookNow={() => handleBookNow()} />
             
           <ServicePackages onBookNow={handleBookNow} />
           
