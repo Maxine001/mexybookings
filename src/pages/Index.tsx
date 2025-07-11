@@ -50,6 +50,11 @@ const Index = () => {
     });
   };
 
+  // New handler to go back to package selection
+  const handleBackToPackages = () => {
+    setCurrentView('packages');
+  };
+
 
  
 
@@ -195,7 +200,7 @@ const Index = () => {
         <BookingSection 
           selectedPackage={selectedPackage}
           isAnnual={isAnnual}
-          onBack={handleBackToHome}
+          onBack={handleBackToPackages}
           couplesToggle={couplesToggle}
         />
       )}

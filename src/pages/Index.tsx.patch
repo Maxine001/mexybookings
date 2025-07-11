@@ -1,0 +1,43 @@
+setCurrentView('home');
+    setSelectedPackage(null);
+    setIsAnnual(false);
+    setCouplesToggle({
+      basic: false,
+      standard: false,
+    });
+  };
+=======
+  const handleBackToHome = () => {
+    setCurrentView('home');
+    setSelectedPackage(null);
+    setIsAnnual(false);
+    setCouplesToggle({
+      basic: false,
+      standard: false,
+    });
+  };
+
+  // New handler to go back to package selection
+  const handleBackToPackages = () => {
+    setCurrentView('packages');
+  };
+>>>>>>> REPLACE
+
+<<<<<<< SEARCH
+      {currentView === 'booking' && (
+        <BookingSection 
+          selectedPackage={selectedPackage}
+          isAnnual={isAnnual}
+          onBack={handleBackToHome}
+          couplesToggle={couplesToggle}
+        />
+      )}
+=======
+      {currentView === 'booking' && (
+        <BookingSection 
+          selectedPackage={selectedPackage}
+          isAnnual={isAnnual}
+          onBack={handleBackToPackages}
+          couplesToggle={couplesToggle}
+        />
+      )}
