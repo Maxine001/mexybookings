@@ -70,10 +70,14 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
       }
 
       try {
+        // Adjust date by adding 1 day to align with trigger function adjustment in DB
+        const adjustedDate = new Date(formData.date);
+        adjustedDate.setDate(adjustedDate.getDate() + 1);
+
         const { data, error } = await supabase
           .from('bookings')
           .select('booking_time')
-          .eq('booking_date', formData.date.toISOString().split('T')[0])
+          .eq('booking_date', adjustedDate.toISOString().split('T')[0])
           .eq('status', 'confirmed');
 
         if (error) {
