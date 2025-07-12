@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ArrowLeft, Calendar as CalendarIcon, Upload, Clock, Check, X, Info } from 'lucide-react';
-import PaymentPage from './PaymentPage';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
@@ -125,7 +124,7 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
     { id: 2, title: 'Personal Info', desc: 'Tell us about yourself' },
     { id: 3, title: 'Upload & Notes', desc: 'Share inspiration photos' },
     { id: 4, title: 'Payment', desc: 'Complete your booking' },
-    { id: 5, title: 'Review', desc: 'Review your booking' }
+   
   ];
 
   const timeSlots = [
@@ -320,7 +319,50 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
       return;
     }
 
-    setShowPayment(true);
+    setIsSubmitting(true);
+
+    try {
+      // Insert booking data into Supabase 'bookings' table
+      const { error } = await supabase.from('bookings').insert([
+        {
+          user_id: user.id,
+          package_id: formData.packageId,
+          package_name: selectedPackage?.name || '',
+          package_price: getPackagePrice(),
+          booking_date: formData.date ? formData.date.toISOString().split('T')[0] : null,
+          booking_time: formData.time,
+          client_name: formData.clientName,
+          client_email: formData.clientEmail,
+          special_requests: formData.specialRequests,
+          uploaded_images: formData.uploadedFileUrls,
+          status: 'pending', // initial status
+          created_at: new Date().toISOString(),
+        }
+      ]);
+
+      if (error) {
+        console.error('Error inserting booking:', error);
+        toast({
+          title: "Booking Failed",
+          description: "Failed to save your booking. Please try again.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // On success, proceed with payment complete flow
+      handlePaymentComplete();
+
+    } catch (error) {
+      console.error('Unexpected error during booking:', error);
+      toast({
+        title: "Booking Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+      setIsSubmitting(false);
+    }
   };
 
   const handlePaymentComplete = async () => {
@@ -367,27 +409,8 @@ const BookingSection = ({ selectedPackage, onBack, isAnnual = false, couplesTogg
   }
 
 
-  // Show payment page
-  if (showPayment) {
-    return (
-      <section className="py-8 px-4 min-h-screen">
-        <PaymentPage
-          selectedPackage={selectedPackage}
-          bookingDetails={{
-            date: formData.date ? format(formData.date, "PPP") : '',
-            time: formData.time,
-            clientName: formData.clientName,
-            clientEmail: formData.clientEmail,
-            specialRequests: formData.specialRequests,
-            uploadedFiles: formData.uploadedFiles
-          }}
-          onBack={() => setShowPayment(false)}
-          onPaymentComplete={handlePaymentComplete}
-          isAnnual={isAnnualUpgraded}
-        />
-      </section>
-    );
-  }
+  
+  // Render booking section
 
   return (
     <section className="py-8 px-4 min-h-screen overflow-x-hidden">

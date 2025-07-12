@@ -12,33 +12,67 @@ const Portfolio = () => {
   const [filter, setFilter] = useState('all');
 
   const portfolioItems = [
+   
     {
       id: 1,
       type: "image",
-      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//portfolio1.JPG",
+      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images/locations/location1.png",
       alt: "Wedding ceremony moment",
-      category: "wedding",
-      title: "Eternal Vows"
+      category: "locations",
+      title: "locations"
     },
     {
       id: 2,
       type: "image",
-      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//portfolio10.JPG",
-      alt: "Lifestyle session",
-      category: "portrait",
-      title: "Natural Beauty"
+      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images/locations/location4.png",
+      alt: "Wedding ceremony moment",
+      category: "locations",
+      title: "locations"
     },
     {
       id: 3,
-      type: "video",
-      src: "https://player.vimeo.com/external/434045526.sd.mp4?s=c27eecc69a27dbc4ff2b87d38afc35f1c9a91f92&profile_id=139&oauth2_token_id=57447761",
-      poster: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=800&h=600&fit=crop",
-      alt: "Wedding reception highlights",
-      category: "wedding",
-      title: "Celebration Moments"
+      type: "image",
+      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images/locations/location7.jpg",
+      alt: "Wedding ceremony moment",
+      category: "locations",
+      title: "locations"
     },
     {
       id: 4,
+      type: "image",
+      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images/locations/location8.jpg",
+      alt: "Lifestyle session",
+      category: "locations",
+      title: "Locations"
+    },
+    {
+      id: 5,
+      type: "image",
+      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images/locations/location9.jpg",
+      alt: "Lifestyle session",
+      category: "locations",
+      title: "Locations"
+    },
+    {
+      id: 6,
+      type: "image",
+      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images/locations/location11.jpg",
+      alt: "Lifestyle session",
+      category: "locations",
+      title: "Locations"
+    },
+    {
+      id: 7,
+      type: "video",
+      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images/videos/vid1.mov",
+      poster: "",
+      alt: "",
+      category: "",
+      title: "location Highlights"
+    },
+
+    {
+      id: 8,
       type: "image",
       src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//portfolio2.JPG",
       alt: "Family portrait",
@@ -46,16 +80,16 @@ const Portfolio = () => {
       title: "Family Bonds"
     },
     {
-      id: 5,
+      id: 9,
       type: "video",
-      src: "https://player.vimeo.com/external/434045526.sd.mp4?s=c27eecc69a27dbc4ff2b87d38afc35f1c9a91f92&profile_id=139&oauth2_token_id=57447761",
+      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images/videos/vid2.mov",
       poster: "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800&h=500&fit=crop",
       alt: "Corporate event coverage",
       category: "event",
       title: "Corporate Gathering"
     },
     {
-      id: 6,
+      id: 10,
       type: "image",
       src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//portfolio5.JPG",
       alt: "Portrait session",
@@ -63,16 +97,16 @@ const Portfolio = () => {
       title: "Artistic Vision"
     },
     {
-      id: 7,
+      id: 11,
       type: "video",
-      src: "https://player.vimeo.com/external/434045526.sd.mp4?s=c27eecc69a27dbc4ff2b87d38afc35f1c9a91f92&profile_id=139&oauth2_token_id=57447761",
+      src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images/videos/vid2.mov",
       poster: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?w=800&h=600&fit=crop",
       alt: "First dance video",
       category: "wedding",
       title: "First Dance"
     },
     {
-      id: 8,
+      id: 12,
       type: "image",
       src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//2025_07_02_07_21_IMG_2600.JPG",
       alt: "Children portrait",
@@ -80,7 +114,7 @@ const Portfolio = () => {
       title: "Childhood Wonder"
     },
     {
-      id: 9,
+      id: 13,
       type: "image",
       src: "https://ofvrujqjbqevpalfzoyh.supabase.co/storage/v1/object/public/images//portfolio9.JPG",
       alt: "Business event",
@@ -94,7 +128,7 @@ const Portfolio = () => {
     { key: 'portrait', label: 'Lifestyle session - Mobile' },
     { key: 'family', label: 'Lifestyle session - Camera' },
     { key: 'event', label: 'All Events' },
-    { key: 'wedding', label: 'Locations' }
+    { key: 'locations', label: 'Locations' }
   ];
 
   const filteredItems = filter === 'all' 
