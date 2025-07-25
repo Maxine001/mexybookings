@@ -221,22 +221,26 @@ Photography Team`;
     }
   };
 
-  const renderUploadedImages = (images: Json) => {
+const renderUploadedImages = (images: Json) => {
     if (!images || !Array.isArray(images) || images.length === 0) {
       return null;
     }
 
+    // Handle array of strings (URLs) or array of objects with url property
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {images.map((image: any, index: number) => (
-          <div key={index} className="aspect-square rounded-lg overflow-hidden bg-slate-100">
-            <img 
-              src={image.url} 
-              alt={`Reference ${index + 1}`}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        ))}
+        {images.map((image: any, index: number) => {
+          const imageUrl = typeof image === 'string' ? image : image.url;
+          return (
+            <div key={index} className="aspect-square rounded-lg overflow-hidden bg-slate-100">
+              <img 
+                src={imageUrl} 
+                alt={`Reference ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          );
+        })}
       </div>
     );
   };
